@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "forgemcp"
+version = "0.1.0"
+description = "A budget-aware repository coding agent with verified execution and sandboxed tools"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [{name = "Tz22z"}]
+keywords = ["coding-agent", "mcp", "tree-sitter", "openai", "swe-bench"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "openai>=1.75",
+  "pydantic>=2.10",
+  "typer>=0.15",
+  "rich>=13.9",
+  "mcp>=1.6",
+  "tree-sitter-language-pack>=0.7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "pytest-timeout>=2.3",
+  "ruff>=0.11",
+  "mypy>=1.15",
+  "build>=1.2",
+]
+
+[project.scripts]
+forge = "forgemcp.cli:app"
+forgemcp = "forgemcp.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/forgemcp"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers"
+testpaths = ["tests"]
+timeout = 30
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["forgemcp"]
+
