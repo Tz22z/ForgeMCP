@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import fnmatch
+import os
 import re
 import subprocess
+import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -76,7 +78,7 @@ class RepositoryTools:
     def __init__(self, policy: ToolPolicy, test_command: list[str] | None = None) -> None:
         self.policy = policy
         self.root = policy.root
-        self.test_command = test_command or ["python", "-m", "pytest", "-q"]
+        self.test_command = test_command or [sys.executable, "-m", "pytest", "-q"]
 
     def list_files(self, args: ListFilesArgs) -> RawObservation:
         paths: list[str] = []
@@ -204,7 +206,10 @@ class RepositoryTools:
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                env={"PATH": str(Path("/usr/local/bin")) + ":/usr/bin:/bin"},
+                env={
+                    "PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"),
+                    "PYTHONPATH": str(self.root),
+                },
             )
             output = process.stdout
             if process.stderr:
@@ -232,4 +237,3 @@ TOOL_SCHEMAS: dict[str, tuple[type[StrictArgs], RiskLevel, str]] = {
     "git_status": (GitStatusArgs, RiskLevel.LOW, "Inspect working tree status"),
     "run_tests": (RunTestsArgs, RiskLevel.LOW, "Run the configured test command"),
 }
-

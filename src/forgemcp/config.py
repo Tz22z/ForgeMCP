@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -29,7 +30,6 @@ def load_config(repository: Path, config_path: Path | None = None) -> RunConfig:
         context_token_budget=int(agent.get("context_token_budget", 12_000)),
         approval_mode=tools.get("approval_mode", "on-risk"),
         allow_network=bool(tools.get("allow_network", False)),
-        test_command=list(tools.get("test_command", ["python", "-m", "pytest", "-q"])),
+        test_command=list(tools.get("test_command", [sys.executable, "-m", "pytest", "-q"])),
         budget=BudgetSpec(**budget_data),
     )
-

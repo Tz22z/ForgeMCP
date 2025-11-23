@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
+import sys
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -178,5 +179,7 @@ class RunConfig(BaseModel):
     context_token_budget: int = Field(default=12_000, ge=1_000)
     budget: BudgetSpec = Field(default_factory=BudgetSpec)
     approval_mode: Literal["never", "on-risk", "always"] = "on-risk"
-    test_command: list[str] = Field(default_factory=lambda: ["python", "-m", "pytest", "-q"])
+    test_command: list[str] = Field(
+        default_factory=lambda: [sys.executable, "-m", "pytest", "-q"]
+    )
     allow_network: bool = False
