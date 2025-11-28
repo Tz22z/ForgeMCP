@@ -44,4 +44,3 @@ def test_regex_extracts_javascript_dependency() -> None:
         source("import { cache } from './cache';\n", "javascript")
     )
     assert parsed.imports[0].module == "./cache"
-

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import ast
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any
 
 from forgemcp.context.files import SourceFile
 
@@ -96,7 +97,9 @@ class SymbolExtractor:
 
             parser = get_parser(source.language)
             tree = parser.parse(source.text.encode())
-        except (ImportError, LookupError, RuntimeError):
+        except Exception:
+            # Language packs may lazily download a parser. Offline and sandboxed
+            # runs must remain functional, so Python falls back to stdlib AST.
             return None
 
         symbols: list[Symbol] = []
@@ -109,7 +112,8 @@ class SymbolExtractor:
             if name_node is None:
                 continue
             name = source.text.encode()[name_node.start_byte : name_node.end_byte].decode()
-            signature = source.text.encode()[node.start_byte : node.end_byte].decode().splitlines()[0]
+            node_text = source.text.encode()[node.start_byte : node.end_byte].decode()
+            signature = node_text.splitlines()[0]
             symbols.append(
                 Symbol(
                     path=source.relative_path,
@@ -191,4 +195,3 @@ class SymbolExtractor:
                     if groups:
                         yield ImportRef(source.relative_path, groups[0], None, line_number)
                     break
-

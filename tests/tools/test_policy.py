@@ -36,4 +36,3 @@ def test_high_risk_tool_requires_approval(tmp_path: Path) -> None:
 def test_explicit_tool_approval_is_narrow(tmp_path: Path) -> None:
     policy = ToolPolicy(tmp_path, approved_tools=frozenset({"delete_file"}))
     policy.authorize("delete_file", RiskLevel.HIGH)
-

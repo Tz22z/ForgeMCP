@@ -80,4 +80,3 @@ class EventJournal:
         if isinstance(value, tuple):
             return [cls._sanitize(item) for item in value]
         return value
-

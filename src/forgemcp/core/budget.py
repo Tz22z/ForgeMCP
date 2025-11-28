@@ -25,7 +25,7 @@ class BudgetExceeded(RuntimeError):
 @dataclass(slots=True)
 class BudgetLedger:
     spec: BudgetSpec
-    started: float = field(default_factory=time.monotonic)
+    started: float = field(default_factory=lambda: time.monotonic())
     _tool_calls: int = 0
     _model_calls: int = 0
     _input_tokens: int = 0
@@ -47,8 +47,9 @@ class BudgetLedger:
         )
 
     def check_time(self) -> None:
-        if self.elapsed >= self.spec.max_wall_seconds:
-            raise BudgetExceeded("wall_seconds", round(self.elapsed, 3), self.spec.max_wall_seconds)
+        elapsed = self.elapsed
+        if elapsed >= self.spec.max_wall_seconds:
+            raise BudgetExceeded("wall_seconds", round(elapsed, 3), self.spec.max_wall_seconds)
 
     def reserve_tool_call(self, name: str, arguments: dict[str, Any]) -> str:
         self.check_time()
@@ -87,4 +88,3 @@ class BudgetLedger:
     def fingerprint(name: str, arguments: dict[str, Any]) -> str:
         canonical = json.dumps(arguments, sort_keys=True, separators=(",", ":"), default=str)
         return hashlib.sha256(f"{name}:{canonical}".encode()).hexdigest()[:16]
-

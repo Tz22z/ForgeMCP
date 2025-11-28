@@ -30,4 +30,3 @@ Usage so far: {usage.tool_calls} tool calls, {usage.model_calls} model calls,
 {usage.wall_seconds:.3f}s elapsed.
 {note}
 """
-

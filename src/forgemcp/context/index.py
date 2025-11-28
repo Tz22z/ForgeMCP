@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from forgemcp.context.files import RepositoryScanner, SourceFile
 from forgemcp.context.symbols import ParsedFile, SymbolExtractor
@@ -113,7 +114,10 @@ class RepositoryIndex:
 
             removed_paths = set(existing) - discovered
             if removed_paths:
-                connection.executemany("DELETE FROM files WHERE path = ?", ((p,) for p in removed_paths))
+                connection.executemany(
+                    "DELETE FROM files WHERE path = ?",
+                    ((path,) for path in removed_paths),
+                )
                 connection.executemany(
                     "DELETE FROM file_reads WHERE path = ?", ((p,) for p in removed_paths)
                 )
@@ -254,4 +258,3 @@ class RepositoryIndex:
         while parts and parts[0] in {"src", "lib", "app"}:
             parts = parts[1:]
         return ".".join(parts)
-

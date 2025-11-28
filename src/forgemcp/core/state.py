@@ -55,4 +55,3 @@ class TaskStateMachine:
     @property
     def terminal(self) -> bool:
         return not _ALLOWED[self.status]
-

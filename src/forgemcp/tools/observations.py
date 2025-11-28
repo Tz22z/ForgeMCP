@@ -32,4 +32,3 @@ class ObservationStore:
         )
         text = content[:head_size] + marker + content[-tail_size:]
         return BoundedOutput(text, True, str(path))
-

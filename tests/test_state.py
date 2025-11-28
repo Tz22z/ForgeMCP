@@ -21,4 +21,3 @@ def test_terminal_state_cannot_transition() -> None:
     state = TaskStateMachine(status=TaskStatus.SUCCEEDED)
     with pytest.raises(InvalidTransition):
         state.transition(TaskStatus.PLANNING)
-

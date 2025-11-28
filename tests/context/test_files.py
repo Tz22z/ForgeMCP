@@ -37,4 +37,3 @@ def test_read_skips_oversized_file(tmp_path: Path) -> None:
     (tmp_path / "big.py").write_text("x" * 20)
     scanner = RepositoryScanner(tmp_path, max_file_bytes=10)
     assert scanner.read("big.py") is None
-

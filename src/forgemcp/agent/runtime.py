@@ -64,7 +64,10 @@ class AgentRuntime:
         failure_output = ""
         final_summary = ""
 
-        journal.append("run.started", {"issue": issue.model_dump(), "config": config_for_log(self.config)})
+        journal.append(
+            "run.started",
+            {"issue": issue.model_dump(), "config": config_for_log(self.config)},
+        )
         try:
             state.transition(TaskStatus.INDEXING)
             stats = index.refresh()
@@ -160,7 +163,8 @@ class AgentRuntime:
                         )
                         next_prompt = continuation_prompt(
                             ledger.usage,
-                            "Automatic verification failed. Diagnose this output and fix the implementation.\n"
+                            "Automatic verification failed. Diagnose the output and fix the "
+                            "implementation.\n"
                             + failure_output[-4_000:]
                             + "\nRelevant refreshed context:\n"
                             + refreshed_context.render(),
@@ -177,7 +181,10 @@ class AgentRuntime:
             if not state.terminal:
                 state.transition(TaskStatus.BUDGET_EXHAUSTED)
             final_summary = str(error)
-            journal.append("budget.exhausted", {"dimension": error.dimension, "message": str(error)})
+            journal.append(
+                "budget.exhausted",
+                {"dimension": error.dimension, "message": str(error)},
+            )
         except Exception as error:  # The event journal preserves unexpected runtime failures.
             if not state.terminal:
                 state.transition(TaskStatus.FAILED)

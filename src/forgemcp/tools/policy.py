@@ -49,7 +49,10 @@ class ToolPolicy:
     def resolve_write(self, relative_path: str, content_size: int = 0) -> Path:
         path = self._resolve(relative_path)
         normalized = path.relative_to(self.root).as_posix()
-        if any(normalized == item or normalized.startswith(f"{item}/") for item in self.denied_write_paths):
+        if any(
+            normalized == item or normalized.startswith(f"{item}/")
+            for item in self.denied_write_paths
+        ):
             raise PolicyViolation(f"writes denied for protected path: {normalized}")
         if path.exists() and path.is_symlink():
             raise PolicyViolation(f"refusing to write through symlink: {relative_path}")
@@ -76,4 +79,3 @@ class ToolPolicy:
         if not path.is_relative_to(self.root):
             raise PolicyViolation(f"path escapes repository: {relative_path}")
         return path
-

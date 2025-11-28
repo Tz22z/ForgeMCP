@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 import subprocess
-from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -197,4 +196,3 @@ class ContextSelector:
     def _truncate_to_tokens(text: str, tokens: int) -> str:
         byte_budget = max(0, tokens * 3)
         return text.encode("utf-8")[:byte_budget].decode("utf-8", errors="ignore")
-

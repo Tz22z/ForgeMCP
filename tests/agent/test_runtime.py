@@ -104,4 +104,3 @@ def test_runtime_reports_budget_exhaustion_explicitly(tmp_path: Path) -> None:
     )
     assert result.status == TaskStatus.BUDGET_EXHAUSTED
     assert "model_calls" in result.summary
-

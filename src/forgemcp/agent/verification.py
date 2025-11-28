@@ -27,4 +27,3 @@ def parse_test_observation(observation: RawObservation) -> TestReport:
         duration_seconds=float(observation.metadata.get("elapsed_seconds", 0.0)),
         summary=lines[-1][:1_000] if lines else "",
     )
-

@@ -51,4 +51,3 @@ def test_openai_adapter_sends_tool_output_against_previous_response() -> None:
     request = responses.requests[0]
     assert request["previous_response_id"] == "resp_previous"
     assert request["input"][0]["type"] == "function_call_output"
-

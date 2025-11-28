@@ -25,4 +25,3 @@ def test_time_budget_checked_before_action() -> None:
         ledger = BudgetLedger(BudgetSpec(max_wall_seconds=2.0))
         with pytest.raises(BudgetExceeded, match="wall_seconds"):
             ledger.check_time()
-

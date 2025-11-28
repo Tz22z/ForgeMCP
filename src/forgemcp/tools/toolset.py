@@ -9,7 +9,6 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -131,7 +130,9 @@ class RepositoryTools:
             except (PolicyViolation, UnicodeDecodeError):
                 continue
             for line_number, line in enumerate(lines, 1):
-                matched = bool(matcher.search(line)) if matcher else args.query.lower() in line.lower()
+                matched = (
+                    bool(matcher.search(line)) if matcher else args.query.lower() in line.lower()
+                )
                 if matched:
                     results.append(f"{relative}:{line_number}:{line[:500]}")
                     if len(results) >= args.max_results:
@@ -146,7 +147,8 @@ class RepositoryTools:
         actual = current.count(args.old)
         if actual != args.expected_replacements:
             raise ValueError(
-                f"expected {args.expected_replacements} occurrence(s), found {actual}; file unchanged"
+                f"expected {args.expected_replacements} occurrence(s), "
+                f"found {actual}; file unchanged"
             )
         updated = current.replace(args.old, args.new)
         self.policy.resolve_write(args.path, len(updated.encode()))

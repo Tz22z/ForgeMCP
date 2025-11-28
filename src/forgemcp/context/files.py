@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import fnmatch
 import hashlib
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
 
 DEFAULT_EXCLUDES = (
     ".git/**",
@@ -60,7 +60,7 @@ class SourceFile:
 
     @property
     def line_count(self) -> int:
-        return self.text.count("\n") + bool(self.text)
+        return len(self.text.splitlines())
 
 
 class RepositoryScanner:
@@ -126,4 +126,3 @@ class RepositoryScanner:
             if any(fnmatch.fnmatch(candidate, pattern) for candidate in candidates):
                 return True
         return False
-

@@ -89,4 +89,3 @@ class ToolDispatcher:
             )
         self.journal.append("tool.finished", result.model_dump(mode="json"))
         return result
-

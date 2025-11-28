@@ -24,7 +24,11 @@ def indexed_repo(tmp_path: Path) -> RepositoryIndex:
 
 def test_symbol_and_test_pair_rank_relevant_files(tmp_path: Path) -> None:
     selector = ContextSelector(indexed_repo(tmp_path))
-    bundle = selector.select("ExpiringCache returns stale values", token_budget=2_000, recent_diff=set())
+    bundle = selector.select(
+        "ExpiringCache returns stale values",
+        token_budget=2_000,
+        recent_diff=set(),
+    )
     paths = [snippet.path for snippet in bundle.snippets]
     assert paths[0] == "src/cache.py"
     assert "tests/test_cache.py" in paths
@@ -55,4 +59,3 @@ def test_repeated_selection_is_measured(tmp_path: Path) -> None:
     selector.select("ExpiringCache", token_budget=2_000, recent_diff=set())
     selector.select("ExpiringCache", token_budget=2_000, recent_diff=set())
     assert index.read_metrics()["repeated_file_reads"] > 0
-

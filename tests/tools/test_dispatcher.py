@@ -67,4 +67,3 @@ def test_observation_is_truncated_with_reference(tmp_path: Path) -> None:
     assert result.ok
     assert result.truncated
     assert result.reference is not None
-

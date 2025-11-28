@@ -26,8 +26,5 @@ def test_replace_text_is_atomic_on_count_mismatch(tmp_path: Path) -> None:
 
 def test_search_has_result_cap(tmp_path: Path) -> None:
     (tmp_path / "a.py").write_text("needle\nneedle\nneedle\n")
-    result = RepositoryTools(ToolPolicy(tmp_path)).search(
-        SearchArgs(query="needle", max_results=2)
-    )
+    result = RepositoryTools(ToolPolicy(tmp_path)).search(SearchArgs(query="needle", max_results=2))
     assert result.metadata["count"] == 2
-

@@ -34,4 +34,3 @@ def test_load_config_defaults(tmp_path: Path) -> None:
     config = load_config(tmp_path)
     assert config.repository == tmp_path.resolve()
     assert config.budget.max_tool_calls == 30
-

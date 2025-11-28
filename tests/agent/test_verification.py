@@ -13,4 +13,3 @@ def test_parse_pytest_summary() -> None:
     assert report.passed == 4
     assert report.skipped == 1
     assert not report.successful
-

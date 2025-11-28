@@ -19,4 +19,3 @@ def test_journal_redacts_secrets(tmp_path: Path) -> None:
 
 def test_redact_api_key_assignment() -> None:
     assert redact("api_key='abc123'") == "api_key='[REDACTED]'"
-

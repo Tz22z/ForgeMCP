@@ -55,4 +55,3 @@ def test_read_metrics_reset_when_content_changes(tmp_path: Path) -> None:
     assert index.record_read("a.py", "v1") is True
     assert index.record_read("a.py", "v2") is False
     assert index.read_metrics()["repeated_read_ratio"] == 0.0
-
