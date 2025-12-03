@@ -31,5 +31,10 @@ def load_config(repository: Path, config_path: Path | None = None) -> RunConfig:
         approval_mode=tools.get("approval_mode", "on-risk"),
         allow_network=bool(tools.get("allow_network", False)),
         test_command=list(tools.get("test_command", [sys.executable, "-m", "pytest", "-q"])),
+        execution_mode=tools.get("execution_mode", "local"),
+        docker_image=tools.get("docker_image", "forgemcp:latest"),
+        cpu_limit=float(tools.get("cpu_limit", 2.0)),
+        memory_mb=int(tools.get("memory_mb", 2_048)),
+        pids_limit=int(tools.get("pids_limit", 256)),
         budget=BudgetSpec(**budget_data),
     )

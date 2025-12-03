@@ -180,4 +180,9 @@ class RunConfig(BaseModel):
     budget: BudgetSpec = Field(default_factory=BudgetSpec)
     approval_mode: Literal["never", "on-risk", "always"] = "on-risk"
     test_command: list[str] = Field(default_factory=lambda: [sys.executable, "-m", "pytest", "-q"])
+    execution_mode: Literal["local", "docker"] = "local"
+    docker_image: str = "forgemcp:latest"
+    cpu_limit: float = Field(default=2.0, gt=0, le=16)
+    memory_mb: int = Field(default=2_048, ge=128, le=32_768)
+    pids_limit: int = Field(default=256, ge=32, le=4_096)
     allow_network: bool = False

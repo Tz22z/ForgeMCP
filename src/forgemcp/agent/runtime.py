@@ -24,6 +24,7 @@ from forgemcp.core.models import (
     ToolResult,
 )
 from forgemcp.core.state import TaskStateMachine
+from forgemcp.sandbox.runners import DockerCommandRunner, LocalCommandRunner
 from forgemcp.tools.dispatcher import ToolDispatcher
 from forgemcp.tools.observations import ObservationStore
 from forgemcp.tools.policy import ToolPolicy
@@ -48,7 +49,18 @@ class AgentRuntime:
             self.config.repository,
             approval_mode=self.config.approval_mode,
         )
-        repository_tools = RepositoryTools(policy, self.config.test_command)
+        runner = (
+            DockerCommandRunner(
+                self.config.docker_image,
+                cpus=self.config.cpu_limit,
+                memory_mb=self.config.memory_mb,
+                pids_limit=self.config.pids_limit,
+                allow_network=self.config.allow_network,
+            )
+            if self.config.execution_mode == "docker"
+            else LocalCommandRunner()
+        )
+        repository_tools = RepositoryTools(policy, self.config.test_command, runner)
         dispatcher = ToolDispatcher(
             repository_tools,
             policy,
@@ -243,5 +255,10 @@ def config_for_log(config: RunConfig) -> dict[str, object]:
         "budget": config.budget.model_dump(),
         "approval_mode": config.approval_mode,
         "test_command": config.test_command,
+        "execution_mode": config.execution_mode,
+        "docker_image": config.docker_image,
+        "cpu_limit": config.cpu_limit,
+        "memory_mb": config.memory_mb,
+        "pids_limit": config.pids_limit,
         "allow_network": config.allow_network,
     }

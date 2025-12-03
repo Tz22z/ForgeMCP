@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 import fnmatch
-import os
 import re
-import subprocess
 import sys
-import time
 from dataclasses import dataclass, field
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from forgemcp.core.models import RiskLevel
+from forgemcp.sandbox.runners import CommandRunner, LocalCommandRunner
 from forgemcp.tools.policy import PolicyViolation, ToolPolicy
 
 
@@ -74,10 +72,16 @@ class RawObservation:
 
 
 class RepositoryTools:
-    def __init__(self, policy: ToolPolicy, test_command: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        policy: ToolPolicy,
+        test_command: list[str] | None = None,
+        runner: CommandRunner | None = None,
+    ) -> None:
         self.policy = policy
         self.root = policy.root
         self.test_command = test_command or [sys.executable, "-m", "pytest", "-q"]
+        self.runner = runner or LocalCommandRunner()
 
     def list_files(self, args: ListFilesArgs) -> RawObservation:
         paths: list[str] = []
@@ -199,34 +203,15 @@ class RepositoryTools:
         return self._run(command, timeout=args.timeout_seconds)
 
     def _run(self, command: list[str], timeout: int) -> RawObservation:
-        started = time.monotonic()
-        try:
-            process = subprocess.run(
-                command,
-                cwd=self.root,
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                env={
-                    "PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"),
-                    "PYTHONPATH": str(self.root),
-                },
-            )
-            output = process.stdout
-            if process.stderr:
-                output += ("\n" if output else "") + process.stderr
-            return RawObservation(
-                output.rstrip(),
-                {
-                    "command": command,
-                    "exit_code": process.returncode,
-                    "elapsed_seconds": round(time.monotonic() - started, 3),
-                },
-            )
-        except subprocess.TimeoutExpired as error:
-            output = (error.stdout or "") + (error.stderr or "")
-            raise TimeoutError(f"command timed out after {timeout}s\n{output}") from error
+        result = self.runner.run(command, self.root, timeout)
+        return RawObservation(
+            result.output,
+            {
+                "command": result.command,
+                "exit_code": result.exit_code,
+                "elapsed_seconds": result.elapsed_seconds,
+            },
+        )
 
 
 TOOL_SCHEMAS: dict[str, tuple[type[StrictArgs], RiskLevel, str]] = {
