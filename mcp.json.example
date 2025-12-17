@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "forgemcp": {
+      "command": "forge",
+      "args": ["serve"],
+      "env": {
+        "FORGEMCP_ROOT": "/absolute/path/to/your/workspaces",
+        "FORGEMCP_MODEL": "gpt-5.2"
+      }
+    }
+  }
+}
