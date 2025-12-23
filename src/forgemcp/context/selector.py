@@ -58,7 +58,12 @@ class ContextSelector:
         token_budget: int,
         failure_output: str = "",
         recent_diff: set[str] | None = None,
+        strategy: str = "hybrid",
     ) -> ContextBundle:
+        if strategy == "baseline":
+            return self._select_baseline(query, token_budget)
+        if strategy != "hybrid":
+            raise ValueError(f"unknown context strategy: {strategy}")
         terms = self._terms(query)
         candidates: dict[str, Candidate] = {
             row["path"]: Candidate(row["path"]) for row in self.index.files()
@@ -130,6 +135,51 @@ class ContextSelector:
             estimated_tokens=used,
             omitted_candidates=max(0, sum(item.score > 0 for item in ranked) - len(snippets)),
             strategy="hybrid-symbol-dependency-diff-failure",
+        )
+
+    def _select_baseline(self, query: str, token_budget: int) -> ContextBundle:
+        """Naive lexical baseline: scan every file and pack whole matches by path."""
+        terms = self._terms(query)
+        ranked: list[tuple[float, str, str, str]] = []
+        for metadata in self.index.files():
+            path = metadata["path"]
+            source = self.index.scanner.read(path)
+            if source is None:
+                continue
+            self.index.record_read(path, source.content_hash)
+            lowered = source.text.lower()
+            score = sum(lowered.count(term) for term in terms)
+            path_score = sum(2 for term in terms if term in path.lower())
+            ranked.append((float(score + path_score), path, source.text, source.content_hash))
+        ranked.sort(key=lambda item: (-item[0], item[1]))
+        snippets: list[ContextSnippet] = []
+        used = 0
+        for score, path, content, _content_hash in ranked:
+            if score <= 0:
+                continue
+            remaining = token_budget - used
+            if remaining <= 0:
+                break
+            text = self._truncate_to_tokens(content, remaining)
+            estimate = self.estimate_tokens(text)
+            snippets.append(
+                ContextSnippet(
+                    path=path,
+                    start_line=1,
+                    end_line=max(1, text.count("\n") + 1),
+                    text=text,
+                    score=score,
+                    reasons=["full-file-lexical-scan"],
+                    estimated_tokens=estimate,
+                )
+            )
+            used += estimate
+        return ContextBundle(
+            query=query,
+            snippets=snippets,
+            estimated_tokens=used,
+            omitted_candidates=max(0, sum(score > 0 for score, *_ in ranked) - len(snippets)),
+            strategy="baseline-full-file-lexical",
         )
 
     def _add_test_pairs(self, candidates: dict[str, Candidate]) -> None:

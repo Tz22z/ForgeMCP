@@ -59,3 +59,14 @@ def test_repeated_selection_is_measured(tmp_path: Path) -> None:
     selector.select("ExpiringCache", token_budget=2_000, recent_diff=set())
     selector.select("ExpiringCache", token_budget=2_000, recent_diff=set())
     assert index.read_metrics()["repeated_file_reads"] > 0
+
+
+def test_baseline_scans_repository_without_symbol_signals(tmp_path: Path) -> None:
+    index = indexed_repo(tmp_path)
+    bundle = ContextSelector(index).select(
+        "ExpiringCache",
+        token_budget=2_000,
+        strategy="baseline",
+    )
+    assert bundle.strategy == "baseline-full-file-lexical"
+    assert index.read_metrics()["file_reads"] == 3

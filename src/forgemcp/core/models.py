@@ -177,6 +177,7 @@ class RunConfig(BaseModel):
     repository: Path
     model: str = "gpt-5.2"
     context_token_budget: int = Field(default=12_000, ge=1_000)
+    context_strategy: Literal["baseline", "hybrid"] = "hybrid"
     budget: BudgetSpec = Field(default_factory=BudgetSpec)
     approval_mode: Literal["never", "on-risk", "always"] = "on-risk"
     test_command: list[str] = Field(default_factory=lambda: [sys.executable, "-m", "pytest", "-q"])

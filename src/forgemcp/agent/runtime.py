@@ -87,6 +87,7 @@ class AgentRuntime:
             context = selector.select(
                 issue.prompt,
                 token_budget=self.config.context_token_budget,
+                strategy=self.config.context_strategy,
             )
             journal.append(
                 "context.selected",
@@ -172,6 +173,7 @@ class AgentRuntime:
                             issue.prompt,
                             token_budget=self.config.context_token_budget,
                             failure_output=failure_output,
+                            strategy=self.config.context_strategy,
                         )
                         next_prompt = continuation_prompt(
                             ledger.usage,
@@ -252,6 +254,7 @@ def config_for_log(config: RunConfig) -> dict[str, object]:
         "repository": str(config.repository),
         "model": config.model,
         "context_token_budget": config.context_token_budget,
+        "context_strategy": config.context_strategy,
         "budget": config.budget.model_dump(),
         "approval_mode": config.approval_mode,
         "test_command": config.test_command,

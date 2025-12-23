@@ -19,6 +19,8 @@ from forgemcp.context.index import RepositoryIndex
 from forgemcp.context.selector import ContextSelector
 from forgemcp.core.models import Issue, RunResult, TaskStatus
 from forgemcp.demo import cleanup_demo, run_demo
+from forgemcp.evaluation.harness import EvaluationHarness, load_manifest, write_report
+from forgemcp.evaluation.models import EvaluationCase, Pricing
 
 app = typer.Typer(no_args_is_help=True, help="Verified repository-level coding agent")
 console = Console()
@@ -99,6 +101,47 @@ def serve() -> None:
     from forgemcp.server import mcp
 
     mcp.run()
+
+
+@app.command("evaluate")
+def evaluate(
+    manifest: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
+    strategy: Annotated[str, typer.Option("--strategy")] = "hybrid",
+    model: Annotated[str, typer.Option("--model")] = "gpt-5.2",
+    report_path: Annotated[Path, typer.Option("--output")] = Path("artifacts/evaluation.json"),
+    input_price: Annotated[float, typer.Option("--input-price-per-million", min=0)] = 0.0,
+    output_price: Annotated[float, typer.Option("--output-price-per-million", min=0)] = 0.0,
+) -> None:
+    """Run a fixed manifest using one context strategy and an external grader."""
+    if strategy not in {"baseline", "hybrid"}:
+        raise typer.BadParameter("strategy must be baseline or hybrid")
+    cases = load_manifest(manifest)
+
+    def run_case(repository: Path, case: EvaluationCase, selected_strategy: str) -> RunResult:
+        config = load_config(repository)
+        config.model = model
+        config.context_strategy = selected_strategy
+        config.test_command = case.test_command
+        return AgentRuntime(config, OpenAIResponsesModel(model)).run(case.issue)
+
+    harness = EvaluationHarness(
+        run_case,
+        model=model,
+        pricing=Pricing(
+            input_per_million=input_price,
+            output_per_million=output_price,
+        ),
+    )
+    report = harness.run(cases, strategy)
+    write_report(report, report_path)
+    table = Table("Metric", "Value", title=f"Evaluation · {strategy}")
+    table.add_row("Solved", f"{report.solved}/{report.attempted}")
+    table.add_row("Solve rate", f"{report.solve_rate:.1%}")
+    table.add_row("Average tool calls", f"{report.average_tool_calls:.2f}")
+    table.add_row("Repeated read ratio", f"{report.average_repeated_read_ratio:.1%}")
+    table.add_row("Estimated cost", f"${report.estimated_total_cost_usd:.4f}")
+    console.print(table)
+    console.print(f"Report: {report_path.resolve()}")
 
 
 def _load_issue(path: Path) -> Issue:
