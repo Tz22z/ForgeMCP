@@ -27,6 +27,7 @@ def test_docker_runner_applies_security_and_resource_limits(tmp_path: Path) -> N
     assert "--network" in command and command[command.index("--network") + 1] == "none"
     assert "--cap-drop" in command and "ALL" in command
     assert "--read-only" in command
+    assert command[command.index("--entrypoint") + 1] == ""
     assert "768m" in command
     assert command[-3:] == ["python", "-m", "pytest"]
 

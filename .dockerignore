@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+.forgemcp
+__pycache__
+.pytest_cache
+.ruff_cache
+.mypy_cache
+artifacts
+build
+dist
+tests
+examples
+

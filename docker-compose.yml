@@ -1,0 +1,25 @@
+services:
+  forgemcp:
+    build:
+      context: .
+      target: runtime
+    image: forgemcp:latest
+    command: ["serve"]
+    stdin_open: true
+    read_only: true
+    network_mode: none
+    cap_drop: ["ALL"]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    cpus: 2.0
+    mem_limit: 2g
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+    volumes:
+      - ./:/workspace:rw
+    environment:
+      FORGEMCP_ROOT: /workspace
+      FORGEMCP_MODEL: ${FORGEMCP_MODEL:-gpt-5.2}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+

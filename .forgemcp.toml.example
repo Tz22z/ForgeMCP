@@ -1,0 +1,23 @@
+[agent]
+model = "gpt-5.2"
+context_strategy = "hybrid"
+context_token_budget = 12000
+
+[budget]
+max_tool_calls = 30
+max_model_calls = 12
+max_input_tokens = 80000
+max_output_tokens = 20000
+max_wall_seconds = 900
+max_repeated_actions = 2
+
+[tools]
+approval_mode = "on-risk"
+execution_mode = "docker"
+docker_image = "forgemcp:latest"
+cpu_limit = 2.0
+memory_mb = 2048
+pids_limit = 256
+allow_network = false
+test_command = ["python", "-m", "pytest", "-q"]
+

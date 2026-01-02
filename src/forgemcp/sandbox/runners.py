@@ -116,6 +116,8 @@ class DockerCommandRunner:
             f"{cwd.resolve()}:/workspace:rw",
             "--workdir",
             "/workspace",
+            "--entrypoint",
+            "",
             self.image,
             *command,
         ]
