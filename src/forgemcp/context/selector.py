@@ -80,11 +80,15 @@ class ContextSelector:
 
         for term in terms:
             for symbol in self.index.symbols(term, limit=50):
-                candidate = candidates.get(symbol["path"])
-                if candidate is None:
+                symbol_candidate = candidates.get(symbol["path"])
+                if symbol_candidate is None:
                     continue
                 exact = symbol["name"].lower() == term
-                candidate.add(7.0 if exact else 4.0, "symbol-match", symbol["start_line"])
+                symbol_candidate.add(
+                    7.0 if exact else 4.0,
+                    "symbol-match",
+                    symbol["start_line"],
+                )
                 for dependent in self.index.dependent_paths(symbol["path"]):
                     if dependent in candidates:
                         candidates[dependent].add(1.75, "symbol-dependent")
@@ -148,14 +152,16 @@ class ContextSelector:
                 continue
             self.index.record_read(path, source.content_hash)
             lowered = source.text.lower()
-            score = sum(lowered.count(term) for term in terms)
+            lexical_score = sum(lowered.count(term) for term in terms)
             path_score = sum(2 for term in terms if term in path.lower())
-            ranked.append((float(score + path_score), path, source.text, source.content_hash))
+            ranked.append(
+                (float(lexical_score + path_score), path, source.text, source.content_hash)
+            )
         ranked.sort(key=lambda item: (-item[0], item[1]))
         snippets: list[ContextSnippet] = []
         used = 0
-        for score, path, content, _content_hash in ranked:
-            if score <= 0:
+        for candidate_score, path, content, _content_hash in ranked:
+            if candidate_score <= 0:
                 continue
             remaining = token_budget - used
             if remaining <= 0:
@@ -168,7 +174,7 @@ class ContextSelector:
                     start_line=1,
                     end_line=max(1, text.count("\n") + 1),
                     text=text,
-                    score=score,
+                    score=candidate_score,
                     reasons=["full-file-lexical-scan"],
                     estimated_tokens=estimate,
                 )

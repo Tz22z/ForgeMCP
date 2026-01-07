@@ -120,7 +120,7 @@ def evaluate(
     def run_case(repository: Path, case: EvaluationCase, selected_strategy: str) -> RunResult:
         config = load_config(repository)
         config.model = model
-        config.context_strategy = selected_strategy
+        config.context_strategy = "baseline" if selected_strategy == "baseline" else "hybrid"
         config.test_command = case.test_command
         return AgentRuntime(config, OpenAIResponsesModel(model)).run(case.issue)
 

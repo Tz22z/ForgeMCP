@@ -210,7 +210,7 @@ class AgentRuntime:
             self.config.repository,
             ["git", "diff", "--name-only", "--no-ext-diff"],
         ).splitlines()
-        result = RunResult(
+        run_result = RunResult(
             run_id=run_id,
             status=state.status,
             issue=issue,
@@ -223,8 +223,8 @@ class AgentRuntime:
             started_at=started,
             finished_at=datetime.now(UTC),
         )
-        journal.append("run.finished", result.model_dump(mode="json"))
-        return result
+        journal.append("run.finished", run_result.model_dump(mode="json"))
+        return run_result
 
 
 def parse_dispatch_result(result: ToolResult) -> TestReport:
