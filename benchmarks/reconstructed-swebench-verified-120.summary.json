@@ -1,0 +1,41 @@
+{
+  "artifact_kind": "reconstructed_historical_summary",
+  "raw_records_recovered": false,
+  "period": {
+    "start": "2025-10",
+    "end": "2026-01"
+  },
+  "dataset": {
+    "name": "SWE-bench Verified",
+    "subset_size": 120,
+    "instance_ids_recovered": false
+  },
+  "controls": {
+    "same_model": true,
+    "same_tool_surface": true,
+    "same_call_budget": true,
+    "exact_model_id_recovered": false,
+    "exact_budget_values_recovered": false
+  },
+  "baseline": {
+    "solved": 54,
+    "attempted": 120,
+    "solve_rate": 0.45,
+    "repeated_file_read_ratio": 0.38,
+    "normalized_cost_per_solve": 1.0
+  },
+  "forgemcp": {
+    "solved": 85,
+    "attempted": 120,
+    "solve_rate_exact": 0.708333,
+    "solve_rate_reported": 0.71,
+    "repeated_file_read_ratio": 0.09,
+    "normalized_cost_per_solve": 0.66
+  },
+  "derived": {
+    "solve_rate_change_percentage_points_reported": 26,
+    "repeated_read_change_percentage_points": -29,
+    "cost_per_solve_change": -0.34
+  },
+  "warning": "Historical summary only. Do not represent this file as a fresh rerun or raw evaluation artifact."
+}
