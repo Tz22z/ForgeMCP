@@ -36,7 +36,9 @@ class RepositoryIndex:
         self.root = root.resolve()
         self.database = database or self.root / ".forgemcp" / "index.sqlite3"
         self.scanner = scanner or RepositoryScanner(self.root)
-        self.extractor = extractor or SymbolExtractor()
+        self.extractor = extractor or SymbolExtractor(
+            cache_dir=self.database.parent / "tree-sitter"
+        )
         self.database.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 

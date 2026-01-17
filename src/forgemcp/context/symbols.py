@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import ast
+import os
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from forgemcp.context.files import SourceFile
@@ -79,8 +81,14 @@ _NODE_KINDS: dict[str, dict[str, str]] = {
 
 
 class SymbolExtractor:
-    def __init__(self, *, prefer_tree_sitter: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        prefer_tree_sitter: bool = True,
+        cache_dir: Path | None = None,
+    ) -> None:
         self.prefer_tree_sitter = prefer_tree_sitter
+        self.cache_dir = cache_dir
 
     def parse(self, source: SourceFile) -> ParsedFile:
         if self.prefer_tree_sitter and source.language in _NODE_KINDS:
@@ -93,8 +101,13 @@ class SymbolExtractor:
 
     def _tree_sitter(self, source: SourceFile) -> ParsedFile | None:
         try:
-            from tree_sitter_language_pack import get_parser
+            from tree_sitter_language_pack import PackConfig, configure, get_parser
 
+            configured_cache = os.getenv("FORGEMCP_TREE_SITTER_CACHE")
+            cache = Path(configured_cache) if configured_cache else self.cache_dir
+            if cache is not None:
+                cache.mkdir(parents=True, exist_ok=True)
+                configure(PackConfig(cache_dir=str(cache)))
             parser = get_parser(source.language)
             tree = parser.parse(source.text.encode())
         except Exception:
