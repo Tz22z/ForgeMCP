@@ -48,6 +48,7 @@ class AgentRuntime:
         policy = ToolPolicy(
             self.config.repository,
             approval_mode=self.config.approval_mode,
+            approved_tools=frozenset(self.config.approved_tools),
         )
         runner = (
             DockerCommandRunner(
@@ -257,6 +258,7 @@ def config_for_log(config: RunConfig) -> dict[str, object]:
         "context_strategy": config.context_strategy,
         "budget": config.budget.model_dump(),
         "approval_mode": config.approval_mode,
+        "approved_tools": config.approved_tools,
         "test_command": config.test_command,
         "execution_mode": config.execution_mode,
         "docker_image": config.docker_image,

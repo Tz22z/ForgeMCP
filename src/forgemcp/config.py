@@ -30,6 +30,7 @@ def load_config(repository: Path, config_path: Path | None = None) -> RunConfig:
         context_token_budget=int(agent.get("context_token_budget", 12_000)),
         context_strategy=agent.get("context_strategy", "hybrid"),
         approval_mode=tools.get("approval_mode", "on-risk"),
+        approved_tools=list(tools.get("approved_tools", [])),
         allow_network=bool(tools.get("allow_network", False)),
         test_command=list(tools.get("test_command", [sys.executable, "-m", "pytest", "-q"])),
         execution_mode=tools.get("execution_mode", "local"),

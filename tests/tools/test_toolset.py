@@ -1,9 +1,16 @@
+import hashlib
 from pathlib import Path
 
 import pytest
 
 from forgemcp.tools.policy import ToolPolicy
-from forgemcp.tools.toolset import ReadFileArgs, ReplaceTextArgs, RepositoryTools, SearchArgs
+from forgemcp.tools.toolset import (
+    DeleteFileArgs,
+    ReadFileArgs,
+    ReplaceTextArgs,
+    RepositoryTools,
+    SearchArgs,
+)
 
 
 def test_read_file_includes_stable_line_numbers(tmp_path: Path) -> None:
@@ -28,3 +35,15 @@ def test_search_has_result_cap(tmp_path: Path) -> None:
     (tmp_path / "a.py").write_text("needle\nneedle\nneedle\n")
     result = RepositoryTools(ToolPolicy(tmp_path)).search(SearchArgs(query="needle", max_results=2))
     assert result.metadata["count"] == 2
+
+
+def test_delete_rejects_stale_hash(tmp_path: Path) -> None:
+    target = tmp_path / "a.py"
+    target.write_text("VALUE = 1\n")
+    old_hash = hashlib.sha256(target.read_bytes()).hexdigest()
+    target.write_text("VALUE = 2\n")
+    with pytest.raises(ValueError, match="hash changed"):
+        RepositoryTools(ToolPolicy(tmp_path)).delete_file(
+            DeleteFileArgs(path="a.py", expected_sha256=old_hash)
+        )
+    assert target.exists()

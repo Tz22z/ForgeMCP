@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import fnmatch
+import hashlib
 import re
 import sys
 from dataclasses import dataclass, field
@@ -48,6 +49,11 @@ class WriteFileArgs(StrictArgs):
     path: str
     content: str
     overwrite: bool = False
+
+
+class DeleteFileArgs(StrictArgs):
+    path: str
+    expected_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
 
 
 class GitDiffArgs(StrictArgs):
@@ -176,6 +182,19 @@ class RepositoryTools:
             {"path": args.path, "bytes": len(encoded), "mutated": True},
         )
 
+    def delete_file(self, args: DeleteFileArgs) -> RawObservation:
+        path = self.policy.resolve_write(args.path)
+        if not path.is_file():
+            raise FileNotFoundError(args.path)
+        actual_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+        if actual_hash != args.expected_sha256:
+            raise ValueError("file hash changed; refusing deletion")
+        path.unlink()
+        return RawObservation(
+            f"deleted {args.path}",
+            {"path": args.path, "mutated": True, "deleted": True},
+        )
+
     def git_diff(self, args: GitDiffArgs) -> RawObservation:
         command = ["git", "diff"]
         if args.staged:
@@ -220,6 +239,7 @@ TOOL_SCHEMAS: dict[str, tuple[type[StrictArgs], RiskLevel, str]] = {
     "search": (SearchArgs, RiskLevel.LOW, "Search repository text"),
     "replace_text": (ReplaceTextArgs, RiskLevel.MEDIUM, "Replace an exact text occurrence"),
     "write_file": (WriteFileArgs, RiskLevel.MEDIUM, "Create or overwrite a repository file"),
+    "delete_file": (DeleteFileArgs, RiskLevel.HIGH, "Delete an exact, content-hashed file"),
     "git_diff": (GitDiffArgs, RiskLevel.LOW, "Inspect the working tree diff"),
     "git_status": (GitStatusArgs, RiskLevel.LOW, "Inspect working tree status"),
     "run_tests": (RunTestsArgs, RiskLevel.LOW, "Run the configured test command"),

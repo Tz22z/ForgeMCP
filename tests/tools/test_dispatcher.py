@@ -1,3 +1,4 @@
+import hashlib
 from pathlib import Path
 
 from forgemcp.context.index import RepositoryIndex
@@ -11,8 +12,8 @@ from forgemcp.tools.policy import ToolPolicy
 from forgemcp.tools.toolset import RepositoryTools
 
 
-def dispatcher(tmp_path: Path) -> ToolDispatcher:
-    policy = ToolPolicy(tmp_path)
+def dispatcher(tmp_path: Path, approved_tools: frozenset[str] = frozenset()) -> ToolDispatcher:
+    policy = ToolPolicy(tmp_path, approved_tools=approved_tools)
     index = RepositoryIndex(
         tmp_path,
         database=tmp_path / ".forgemcp" / "index.sqlite3",
@@ -67,3 +68,23 @@ def test_observation_is_truncated_with_reference(tmp_path: Path) -> None:
     assert result.ok
     assert result.truncated
     assert result.reference is not None
+
+
+def test_delete_requires_approval_and_exact_content_hash(tmp_path: Path) -> None:
+    target = tmp_path / "obsolete.py"
+    target.write_text("OLD = True\n")
+    digest = hashlib.sha256(target.read_bytes()).hexdigest()
+    call = ToolCall(
+        id="5",
+        name="delete_file",
+        arguments={"path": "obsolete.py", "expected_sha256": digest},
+    )
+
+    denied = dispatcher(tmp_path).dispatch(call)
+    assert not denied.ok
+    assert "ApprovalRequired" in (denied.error or "")
+    assert target.exists()
+
+    approved = dispatcher(tmp_path, frozenset({"delete_file"})).dispatch(call)
+    assert approved.ok
+    assert not target.exists()

@@ -113,8 +113,9 @@ attention budget and favoring compact, just-in-time evidence over exhaustive dum
 
 ### Restricted tools
 
-ForgeMCP exposes eight deliberately narrow tools: file listing, bounded reads, search,
-exact replacement, explicit file creation/overwrite, Git diff, Git status, and tests.
+ForgeMCP exposes nine deliberately narrow tools: file listing, bounded reads, search,
+exact replacement, explicit file creation/overwrite, content-hashed deletion, Git diff,
+Git status, and tests.
 
 - Strict Pydantic schemas reject unknown arguments.
 - All paths resolve beneath one repository root; absolute paths and traversal fail.
@@ -191,6 +192,8 @@ max_wall_seconds = 900
 max_repeated_actions = 2
 
 [tools]
+approval_mode = "on-risk"
+approved_tools = [] # Add "delete_file" only after explicit review
 execution_mode = "docker"
 allow_network = false
 test_command = ["python", "-m", "pytest", "-q"]
@@ -246,4 +249,3 @@ confinement, and hidden-test grading.
 ## License
 
 MIT
-

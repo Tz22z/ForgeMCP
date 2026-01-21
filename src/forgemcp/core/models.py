@@ -180,6 +180,7 @@ class RunConfig(BaseModel):
     context_strategy: Literal["baseline", "hybrid"] = "hybrid"
     budget: BudgetSpec = Field(default_factory=BudgetSpec)
     approval_mode: Literal["never", "on-risk", "always"] = "on-risk"
+    approved_tools: list[str] = Field(default_factory=list)
     test_command: list[str] = Field(default_factory=lambda: [sys.executable, "-m", "pytest", "-q"])
     execution_mode: Literal["local", "docker"] = "local"
     docker_image: str = "forgemcp:latest"
