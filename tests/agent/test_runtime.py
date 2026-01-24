@@ -104,3 +104,32 @@ def test_runtime_reports_budget_exhaustion_explicitly(tmp_path: Path) -> None:
     )
     assert result.status == TaskStatus.BUDGET_EXHAUSTED
     assert "model_calls" in result.summary
+
+
+def test_failed_automatic_verification_returns_to_repair_loop(tmp_path: Path) -> None:
+    sample_repository(tmp_path)
+    model = SequenceModel(
+        [
+            AgentDecision(final_answer="The implementation already looks correct."),
+            AgentDecision(
+                tool_calls=[
+                    ToolCall(
+                        id="repair-1",
+                        name="replace_text",
+                        arguments={"path": "calc.py", "old": "a - b", "new": "a + b"},
+                    )
+                ]
+            ),
+            AgentDecision(final_answer="Corrected addition after the test failure."),
+        ]
+    )
+
+    result = AgentRuntime(config(tmp_path), model).run(
+        Issue(title="Addition is wrong", body="add(2, 3) should return 5")
+    )
+
+    assert result.status == TaskStatus.SUCCEEDED
+    assert result.usage.model_calls == 3
+    assert result.usage.tool_calls == 3
+    assert model.turns[1].tool_results[0].tool_name == "run_tests"
+    assert "Automatic verification failed" in model.turns[1].prompt

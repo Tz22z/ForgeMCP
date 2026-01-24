@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import subprocess
 import time
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -45,6 +46,7 @@ class LocalCommandRunner:
                 env={
                     "PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"),
                     "PYTHONPATH": str(cwd),
+                    "PYTHONPYCACHEPREFIX": str(cwd / ".forgemcp" / "pycache" / uuid.uuid4().hex),
                     "LANG": "C.UTF-8",
                 },
             )
@@ -116,6 +118,8 @@ class DockerCommandRunner:
             f"{cwd.resolve()}:/workspace:rw",
             "--workdir",
             "/workspace",
+            "--env",
+            "PYTHONPYCACHEPREFIX=/tmp/pycache",
             "--entrypoint",
             "",
             self.image,
