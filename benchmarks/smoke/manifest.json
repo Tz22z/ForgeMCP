@@ -1,0 +1,20 @@
+{
+  "cases": [
+    {
+      "instance_id": "smoke__double-negative",
+      "fixture": "fixture",
+      "grader": "grader",
+      "issue": {
+        "title": "double returns its input unchanged",
+        "body": "The double function must multiply positive and negative numeric values by two.",
+        "acceptance_criteria": [
+          "double(4) returns 8",
+          "double(-3) returns -6",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    }
+  ]
+}
+
