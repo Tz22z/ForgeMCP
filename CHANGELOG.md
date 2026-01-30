@@ -21,8 +21,8 @@ All notable changes to ForgeMCP are documented here.
 
 ### Verification
 
-- 56 automated tests.
-- 80% measured line coverage in the reconstruction environment.
+- 57 automated tests.
+- 81% measured line coverage in the reconstruction environment.
 - Wheel and source distribution build successfully.
 - Hardened Docker image builds and loads pre-fetched Tree-sitter parsers with network
   disabled and a read-only root filesystem.

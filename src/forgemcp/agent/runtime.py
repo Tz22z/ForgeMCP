@@ -206,11 +206,7 @@ class AgentRuntime:
             final_summary = f"{type(error).__name__}: {error}"
             journal.append("run.error", {"type": type(error).__name__, "message": str(error)})
 
-        patch = git_output(self.config.repository, ["git", "diff", "--no-ext-diff"])
-        changed = git_output(
-            self.config.repository,
-            ["git", "diff", "--name-only", "--no-ext-diff"],
-        ).splitlines()
+        patch, changed = collect_worktree_changes(self.config.repository)
         run_result = RunResult(
             run_id=run_id,
             status=state.status,
@@ -248,6 +244,37 @@ def git_output(root: Path, command: list[str]) -> str:
     except (OSError, subprocess.TimeoutExpired):
         return ""
     return process.stdout.rstrip()
+
+
+def collect_worktree_changes(root: Path) -> tuple[str, list[str]]:
+    tracked = git_output(
+        root,
+        ["git", "diff", "--name-only", "-z", "--no-ext-diff"],
+    ).split("\0")
+    untracked = git_output(
+        root,
+        [
+            "git",
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "--exclude=.forgemcp/**",
+            "-z",
+        ],
+    ).split("\0")
+    tracked_patch = git_output(root, ["git", "diff", "--no-ext-diff"])
+    patch_parts = [tracked_patch] if tracked_patch else []
+    for path in untracked:
+        if not path:
+            continue
+        untracked_patch = git_output(
+            root,
+            ["git", "diff", "--no-index", "--", "/dev/null", path],
+        )
+        if untracked_patch:
+            patch_parts.append(untracked_patch)
+    changed = sorted({path for path in [*tracked, *untracked] if path})
+    return "\n".join(patch_parts), changed
 
 
 def config_for_log(config: RunConfig) -> dict[str, object]:

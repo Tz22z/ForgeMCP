@@ -133,3 +133,45 @@ def test_failed_automatic_verification_returns_to_repair_loop(tmp_path: Path) ->
     assert result.usage.tool_calls == 3
     assert model.turns[1].tool_results[0].tool_name == "run_tests"
     assert "Automatic verification failed" in model.turns[1].prompt
+
+
+def test_result_patch_includes_new_untracked_files(tmp_path: Path) -> None:
+    sample_repository(tmp_path)
+    (tmp_path / "calc.py").write_text("def add(a, b):\n    return a + b\n")
+    git(["git", "add", "calc.py"], tmp_path)
+    git(
+        [
+            "git",
+            "-c",
+            "user.name=Test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-qm",
+            "fix fixture",
+        ],
+        tmp_path,
+    )
+    model = SequenceModel(
+        [
+            AgentDecision(
+                tool_calls=[
+                    ToolCall(
+                        id="write-1",
+                        name="write_file",
+                        arguments={"path": "notes.py", "content": "FIXED = True\n"},
+                    )
+                ]
+            ),
+            AgentDecision(final_answer="Added the requested module."),
+        ]
+    )
+
+    result = AgentRuntime(config(tmp_path), model).run(
+        Issue(title="Add marker", body="Add a notes module with a fixed marker")
+    )
+
+    assert result.status == TaskStatus.SUCCEEDED
+    assert result.changed_files == ["notes.py"]
+    assert "new file mode" in result.patch
+    assert "+FIXED = True" in result.patch
