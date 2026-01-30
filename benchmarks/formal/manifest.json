@@ -1,0 +1,143 @@
+{
+  "name": "ForgeMCP formal-8 baseline vs hybrid",
+  "description": "Eight-case, API-backed paired benchmark covering boundary conditions, cross-file invalidation, idempotency, configuration precedence, and mutable state.",
+  "limitations": [
+    "This is an eight-case synthetic integration benchmark, not SWE-bench.",
+    "Three paired trials provide regression evidence, not a precise population estimate.",
+    "The cases are Python-only and deliberately small enough for controlled paid reruns.",
+    "The benchmark isolates context selection; it does not estimate performance across all repository tasks."
+  ],
+  "cases": [
+    {
+      "instance_id": "formal_8__expired-cache-entry",
+      "fixture": "../live-small/fixtures/expired-cache-entry",
+      "grader": "../live-small/graders/expired-cache-entry",
+      "issue": {
+        "title": "ExpiringCache returns stale values at the expiry boundary",
+        "body": "ExpiringCache.get must treat expires_at <= now as expired, remove the stale entry, and return None. Fresh and missing entries must keep their current behavior.",
+        "acceptance_criteria": [
+          "An entry with expires_at equal to now returns None",
+          "An entry with expires_at before now returns None",
+          "Expired entries are removed from the cache",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "formal_8__project-permission-invalidation",
+      "fixture": "../live-small/fixtures/project-permission-invalidation",
+      "grader": "../live-small/graders/project-permission-invalidation",
+      "issue": {
+        "title": "Deleting a project leaves derived PermissionCache entries alive",
+        "body": "ProjectService.delete_project must invalidate permissions derived for that project after deleting it. Entries for other projects must remain cached and the public APIs must not change.",
+        "acceptance_criteria": [
+          "The project is removed from ProjectCache",
+          "Every PermissionCache entry for the deleted project is removed",
+          "PermissionCache entries for unrelated projects remain",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "formal_8__retry-budget-boundary",
+      "fixture": "../live-small/fixtures/retry-budget-boundary",
+      "grader": "../live-small/graders/retry-budget-boundary",
+      "issue": {
+        "title": "RetryBudget permits an extra attempt",
+        "body": "should_retry receives a one-based attempt_number and the total max_attempts. It should return true only when another attempt remains.",
+        "acceptance_criteria": [
+          "Attempt 1 of 3 can retry",
+          "Attempt 2 of 3 can retry",
+          "Attempt 3 of 3 cannot retry",
+          "Values below one still raise ValueError",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "formal_8__shipping-threshold",
+      "fixture": "../live-small/fixtures/shipping-threshold",
+      "grader": "../live-small/graders/shipping-threshold",
+      "issue": {
+        "title": "Pro discount incorrectly removes free shipping",
+        "body": "Free shipping eligibility uses the pre-discount gross subtotal. The final total still applies the customer discount before adding shipping.",
+        "acceptance_criteria": [
+          "A 50 dollar Pro cart receives a 10 percent discount",
+          "A 50 dollar Pro cart has zero shipping",
+          "The resulting total is 45 dollars",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "formal_8__cursor-boundary",
+      "fixture": "fixtures/cursor-boundary",
+      "grader": "graders/cursor-boundary",
+      "issue": {
+        "title": "paginate emits a phantom cursor at the exact final-page boundary",
+        "body": "paginate should return next_cursor only when at least one item remains after the returned page. Keep cursor validation and partial-page behavior unchanged.",
+        "acceptance_criteria": [
+          "A full non-final page returns the next zero-based cursor",
+          "An exact final page returns None for next_cursor",
+          "A partial final page returns None for next_cursor",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "formal_8__idempotent-charge",
+      "fixture": "fixtures/idempotent-charge",
+      "grader": "graders/idempotent-charge",
+      "issue": {
+        "title": "PaymentProcessor charges twice for the same idempotency key",
+        "body": "PaymentProcessor.charge must return the existing receipt when the ledger already contains the idempotency key. The gateway must be called exactly once for duplicate requests and the public API must remain unchanged.",
+        "acceptance_criteria": [
+          "The first request calls the gateway and records its receipt",
+          "A duplicate key returns the original receipt",
+          "A duplicate key does not call the gateway again",
+          "Different keys remain independent",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "formal_8__config-precedence",
+      "fixture": "fixtures/config-precedence",
+      "grader": "graders/config-precedence",
+      "issue": {
+        "title": "resolve_timeout lets the config file override the environment",
+        "body": "Timeout precedence must be explicit argument, then environment, then config file, then default. Values are positive integers; preserve current validation and return type.",
+        "acceptance_criteria": [
+          "An explicit timeout wins over every other source",
+          "An environment timeout wins over the config file",
+          "The config file wins over the default",
+          "The default is used only when all other sources are absent",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "formal_8__nested-snapshot",
+      "fixture": "fixtures/nested-snapshot",
+      "grader": "graders/nested-snapshot",
+      "issue": {
+        "title": "SnapshotHistory aliases nested mutable state",
+        "body": "SnapshotHistory.save must preserve an independent snapshot, including nested dictionaries and lists. Later in-place mutations must not change the saved value returned by restore.",
+        "acceptance_criteria": [
+          "Scalar fields restore to their saved values",
+          "Nested dictionaries restore independently of later mutations",
+          "Nested lists restore independently of later mutations",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    }
+  ]
+}

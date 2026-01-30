@@ -1,0 +1,106 @@
+{
+  "strategy": "hybrid",
+  "model": "gpt-5.2-2025-12-11",
+  "attempted": 4,
+  "solved": 4,
+  "solve_rate": 1.0,
+  "total_tool_calls": 30,
+  "average_tool_calls": 7.5,
+  "total_model_calls": 34,
+  "total_input_tokens": 63852,
+  "total_output_tokens": 2058,
+  "estimated_total_cost_usd": 0.140552,
+  "cost_per_solved_usd": 0.035138,
+  "average_repeated_read_ratio": 0.0,
+  "generated_at": "2026-09-15T20:37:27.734529Z",
+  "records": [
+    {
+      "instance_id": "live_small__expired-cache-entry",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented correct expiry-boundary behavior in `ExpiringCache.get`:\n\n- `expires_at <= now` is now treated as expired (including the equality boundary).\n- Expired entries are removed from `self._entries` via `pop`.\n- For expired entries, `get` returns `None`.\n- Fresh and missing entries keep existing behavior.\n\nTests were not changed, and the full test suite passes (`2 passed`).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 5,
+        "model_calls": 6,
+        "input_tokens": 10036,
+        "output_tokens": 384,
+        "wall_seconds": 12.679
+      },
+      "estimated_cost_usd": 0.022939,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__project-permission-invalidation",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented permission invalidation on project deletion without changing any public APIs.\n\n### Change\n- Updated `ProjectService.delete_project` to invalidate permission cache entries for the deleted project after removing it from `ProjectCache`.\n\n```py\ndef delete_project(self, project_id: str) -> None:\n    self.projects.delete(project_id)\n    # Invalidate permissions derived for this project only.\n    self.permissions.invalidate_project(project_id)\n```\n\n### Why this meets the acceptance criteria\n- Project is removed from `ProjectCache` via `self.projects.delete(project_id)`.\n- All `PermissionCache` entries for that `project_id` are removed via `invalidate_project`.\n- Entries for other projects remain because `invalidate_project` filters only keys whose first tuple element matches `project_id`.\n\n### Tests\n- `tests/test_service.py` passed\n- Full test suite passed",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 21019,
+        "output_tokens": 489,
+        "wall_seconds": 16.273
+      },
+      "estimated_cost_usd": 0.043629,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__retry-budget-boundary",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Fixed `RetryBudget.should_retry` off-by-one behavior.\n\n### What changed\n- Updated `should_retry(attempt_number, max_attempts)` to return `True` **only if another attempt remains**, i.e.:\n  - returns `attempt_number < max_attempts` (not `<=`).\n\n### Behavior now\n- Attempt 1 of 3 → can retry (`True`)\n- Attempt 2 of 3 → can retry (`True`)\n- Attempt 3 of 3 → cannot retry (`False`)\n- `attempt_number < 1` still raises `ValueError`\n- `max_attempts < 1` still raises `ValueError`\n\n### Tests\n- `tests/test_retry_budget.py` passes\n- Full test suite passes",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 7,
+        "model_calls": 8,
+        "input_tokens": 13434,
+        "output_tokens": 686,
+        "wall_seconds": 14.562
+      },
+      "estimated_cost_usd": 0.033113,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__shipping-threshold",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented the fix in `checkout.quote()` so free-shipping eligibility is determined from the **pre-discount subtotal** (gross), while the **discount still applies to the subtotal** before adding shipping.\n\n### Change made\n- **Before:** free shipping if `discounted >= FREE_SHIPPING_MINIMUM`\n- **After:** free shipping if `subtotal >= FREE_SHIPPING_MINIMUM`\n\n```py\n# Free shipping eligibility is based on the pre-discount gross subtotal.\nshipping = Decimal(\"0.00\") if subtotal >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\n### Verification\n- Existing tests: **all pass** (`2 passed`)\n- Acceptance criteria impact:\n  - A $50 Pro cart gets 10% discount → discounted subtotal = $45.00\n  - Shipping eligibility uses gross $50.00 → shipping = $0.00\n  - Total = $45.00 + $0.00 = **$45.00**",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 19363,
+        "output_tokens": 499,
+        "wall_seconds": 16.023
+      },
+      "estimated_cost_usd": 0.040871,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    }
+  ]
+}

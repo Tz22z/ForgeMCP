@@ -38,6 +38,15 @@ def test_dispatch_validates_arguments(tmp_path: Path) -> None:
     assert "ValidationError" in (result.error or "")
 
 
+def test_openai_strict_definitions_require_every_property(tmp_path: Path) -> None:
+    definitions = dispatcher(tmp_path).definitions()
+    for definition in definitions:
+        parameters = definition["parameters"]
+        assert definition["strict"] is True
+        assert parameters["additionalProperties"] is False
+        assert set(parameters["required"]) == set(parameters["properties"])
+
+
 def test_dispatch_edit_invalidates_and_refreshes_index(tmp_path: Path) -> None:
     (tmp_path / "value.py").write_text("VALUE = 1\n")
     active = dispatcher(tmp_path)

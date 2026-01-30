@@ -1,0 +1,106 @@
+{
+  "strategy": "baseline",
+  "model": "gpt-5.2-2025-12-11",
+  "attempted": 4,
+  "solved": 4,
+  "solve_rate": 1.0,
+  "total_tool_calls": 36,
+  "average_tool_calls": 9.0,
+  "total_model_calls": 40,
+  "total_input_tokens": 96736,
+  "total_output_tokens": 1845,
+  "estimated_total_cost_usd": 0.195118,
+  "cost_per_solved_usd": 0.04878,
+  "average_repeated_read_ratio": 0.0,
+  "generated_at": "2026-09-15T20:34:32.583234Z",
+  "records": [
+    {
+      "instance_id": "live_small__expired-cache-entry",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated fault in `cache.py`: `ExpiringCache.get()` treated `expires_at <= now` as *not expired* and returned the stale value.\n\n### Fix applied (smallest coherent change)\n- `expires_at <= now` is now treated as expired:\n  - removes the entry from `_entries`\n  - returns `None`\n\n```py\nif entry.expires_at <= now:\n    self._entries.pop(key, None)\n    return None\n```\n\n### Tests\n- Ran repository tests: **2 passed** (`tests/test_cache.py`)",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 33064,
+        "output_tokens": 441,
+        "wall_seconds": 19.831
+      },
+      "estimated_cost_usd": 0.064036,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__project-permission-invalidation",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Implemented permission invalidation on project deletion without changing any public APIs.\n\n### What changed\n- **`ProjectService.delete_project`** now:\n  1. Deletes the project from `ProjectCache`\n  2. Calls `PermissionCache.invalidate_project(project_id)` to remove **all** cached permission entries for that project while leaving unrelated projects’ entries intact.\n\n### Patch\n- Updated: `service.py`\n\n### Verification\n- Ran the full test suite: **all tests pass** (`1 passed`).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 18305,
+        "output_tokens": 401,
+        "wall_seconds": 13.339
+      },
+      "estimated_cost_usd": 0.037648,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__retry-budget-boundary",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault in `retry_budget.should_retry`: it treated `attempt_number == max_attempts` as retryable (`<=`), allowing one extra attempt.\n\n### Fix\nUpdated the boundary check to only allow retries when another attempt remains:\n\n- `attempt_number < max_attempts` (not `<=`)\n\n`ValueError` behavior for `attempt_number < 1` and `max_attempts < 1` is unchanged.\n\n### Tests\n- `tests/test_retry_budget.py`: **passed**\n- Full suite: **passed** (2 tests)",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 17723,
+        "output_tokens": 399,
+        "wall_seconds": 16.986
+      },
+      "estimated_cost_usd": 0.036601,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__shipping-threshold",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault in `checkout.quote`: shipping eligibility was being computed from the **discounted** subtotal:\n\n```py\nshipping = Decimal(\"0.00\") if discounted >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\nThat incorrectly removes free shipping for Pro customers whose pre-discount subtotal meets the threshold.\n\n### Fix\nUpdated shipping eligibility to use the **pre-discount gross subtotal** while still applying the discount before adding shipping to the final total:\n\n```py\n# Free shipping eligibility is based on the pre-discount gross subtotal.\nshipping = Decimal(\"0.00\") if subtotal >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\n### Result vs acceptance criteria\n- $50 Pro cart receives 10% discount → discount = $5.00\n- $50 Pro cart has zero shipping → shipping = $0.00 (based on gross subtotal)\n- Total = $45.00 → (50 - 5) + 0\n\n### Tests\n- Ran `tests/test_checkout.py`: **passed**\n- Ran full test suite: **passed**\n\nNo tests were changed.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 11,
+        "model_calls": 12,
+        "input_tokens": 27644,
+        "output_tokens": 604,
+        "wall_seconds": 21.12
+      },
+      "estimated_cost_usd": 0.056833,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    }
+  ]
+}

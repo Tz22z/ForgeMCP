@@ -1,0 +1,106 @@
+{
+  "strategy": "baseline",
+  "model": "gpt-5.2-2025-12-11",
+  "attempted": 4,
+  "solved": 4,
+  "solve_rate": 1.0,
+  "total_tool_calls": 39,
+  "average_tool_calls": 9.75,
+  "total_model_calls": 43,
+  "total_input_tokens": 125287,
+  "total_output_tokens": 2257,
+  "estimated_total_cost_usd": 0.25085,
+  "cost_per_solved_usd": 0.062713,
+  "average_repeated_read_ratio": 0.0,
+  "generated_at": "2026-09-15T20:40:11.593695Z",
+  "records": [
+    {
+      "instance_id": "live_small__expired-cache-entry",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault in `cache.py`: `ExpiringCache.get()` treated `expires_at <= now` as *not expired* and returned the stale value.\n\n### Fix\nUpdated `ExpiringCache.get()` to:\n- Treat `expires_at <= now` as expired (including the equality boundary)\n- Remove the expired entry from `_entries`\n- Return `None` for expired entries\n- Preserve behavior for fresh and missing entries\n\nPatch (effective change):\n```py\nif entry.expires_at <= now:\n    self._entries.pop(key, None)\n    return None\n```\n\n### Tests\nRan the existing suite without modification:\n\n- `2 passed` ✅",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 33079,
+        "output_tokens": 465,
+        "wall_seconds": 22.303
+      },
+      "estimated_cost_usd": 0.064398,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__project-permission-invalidation",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault:\n\n- `ProjectService.delete_project()` only called `ProjectCache.delete(project_id)` and never invalidated derived permission entries.\n- `PermissionCache` already provides `invalidate_project(project_id)` that removes all `(project_id, user_id)` entries while preserving other projects’ entries.\n\nFix (smallest coherent change, no public API changes):\n\n- Updated `service.py` so `delete_project()` now:\n  1) deletes the project from `ProjectCache`\n  2) calls `self.permissions.invalidate_project(project_id)` to remove every `PermissionCache` entry for that project only\n\nTests:\n\n- Ran full test suite: `1 passed`\n\nAcceptance criteria mapping:\n\n- Project removed from `ProjectCache`: ensured via existing `projects.delete(project_id)`\n- Every `PermissionCache` entry for deleted project removed: ensured via `permissions.invalidate_project(project_id)`\n- Unrelated projects’ permission entries remain: `invalidate_project` filters only matching `project_id`\n- Tests unchanged: confirmed",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 20741,
+        "output_tokens": 579,
+        "wall_seconds": 19.756
+      },
+      "estimated_cost_usd": 0.044403,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__retry-budget-boundary",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the boundary bug in `retry_budget.should_retry`: it treated `attempt_number == max_attempts` as retryable, permitting an extra attempt.\n\n### Fix\nUpdated the retry condition to allow retries only when **another** attempt remains (one-based attempt counter):\n\n- `attempt_number < max_attempts` (instead of `<=`)\n\n```py\n# attempt_number is one-based; retry is only allowed if another attempt remains.\nreturn attempt_number < max_attempts\n```\n\n### Test results (unchanged tests)\n- `tests/test_retry_budget.py` passed\n- Full suite (`tests/`) passed\n\nAll acceptance criteria are satisfied:\n- Attempt 1 of 3 can retry ✅\n- Attempt 2 of 3 can retry ✅\n- Attempt 3 of 3 cannot retry ✅\n- Values below one still raise `ValueError` ✅",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 11,
+        "model_calls": 12,
+        "input_tokens": 46640,
+        "output_tokens": 543,
+        "wall_seconds": 23.022
+      },
+      "estimated_cost_usd": 0.089222,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__shipping-threshold",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault in `checkout.py`: shipping eligibility was being calculated against the *discounted* subtotal:\n\n```py\nshipping = Decimal(\"0.00\") if discounted >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\nThat incorrectly removes free shipping for Pro customers whose pre-discount subtotal meets the threshold.\n\n### Fix\nUpdated shipping eligibility to use the **pre-discount gross subtotal**, while still computing the final total as discounted subtotal + shipping:\n\n```py\n# Free shipping eligibility is based on the pre-discount gross subtotal.\nshipping = Decimal(\"0.00\") if subtotal >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\n### Result vs acceptance criteria\n- $50 Pro cart receives 10% discount → discount = $5.00\n- $50 Pro cart has zero shipping → shipping = $0.00 (eligible based on gross subtotal)\n- total = $50.00 - $5.00 + $0.00 = **$45.00**\n\n### Tests\nAll existing tests pass unchanged:\n\n- `2 passed`",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 10,
+        "model_calls": 11,
+        "input_tokens": 24827,
+        "output_tokens": 670,
+        "wall_seconds": 17.815
+      },
+      "estimated_cost_usd": 0.052827,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    }
+  ]
+}

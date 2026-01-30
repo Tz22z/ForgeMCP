@@ -13,7 +13,7 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 
 from forgemcp.context.index import RepositoryIndex
-from forgemcp.core.models import RunResult
+from forgemcp.core.models import RunResult, TaskStatus
 from forgemcp.evaluation.models import (
     AggregateReport,
     EvaluationCase,
@@ -22,6 +22,11 @@ from forgemcp.evaluation.models import (
 )
 
 AgentFactory = Callable[[Path, EvaluationCase, str], RunResult]
+
+_ISOLATED_PYTEST = (
+    "import sys; sys.dont_write_bytecode = True; import pytest; sys.path.append(sys.argv[1]); "
+    "raise SystemExit(pytest.main(sys.argv[2:]))"
+)
 
 
 class EvaluationHarness:
@@ -48,6 +53,7 @@ class EvaluationHarness:
         return AggregateReport(
             strategy=strategy,
             model=self.model,
+            pricing=self.pricing,
             attempted=attempted,
             solved=solved,
             solve_rate=round(solved / attempted, 4) if attempted else 0.0,
@@ -77,11 +83,14 @@ class EvaluationHarness:
             protected_unchanged = before == after
             exit_code, summary = run_grader(case.grader, workspace)
             metrics = RepositoryIndex(workspace).read_metrics()
-            solved = exit_code == 0 and protected_unchanged
+            solved = (
+                result.status == TaskStatus.SUCCEEDED and exit_code == 0 and protected_unchanged
+            )
             return EvaluationRecord(
                 instance_id=case.instance_id,
                 strategy=strategy,
                 status=result.status,
+                agent_summary=result.summary,
                 solved=solved,
                 grader_exit_code=exit_code,
                 grader_summary=summary,
@@ -130,21 +139,45 @@ def run_grader(grader: Path, workspace: Path) -> tuple[int, str]:
     if not grader.exists():
         raise FileNotFoundError(f"grader not found: {grader}")
     process = subprocess.run(
-        [sys.executable, "-m", "pytest", "-q", str(grader)],
-        cwd=workspace,
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            _ISOLATED_PYTEST,
+            str(workspace),
+            "-q",
+            str(grader),
+        ],
+        cwd=grader,
         check=False,
         capture_output=True,
         text=True,
         timeout=300,
         env={
             "PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"),
-            "PYTHONPATH": str(workspace),
             "LANG": "C.UTF-8",
         },
     )
     output = process.stdout + ("\n" + process.stderr if process.stderr else "")
     lines = [line for line in output.splitlines() if line.strip()]
     return process.returncode, lines[-1][:1_000] if lines else ""
+
+
+def normalize_test_command(command: list[str]) -> list[str]:
+    """Use this interpreter and prevent a fixture from shadowing pytest itself."""
+    if (
+        len(command) >= 3
+        and command[0] in {"python", "python3"}
+        and command[1:3]
+        == [
+            "-m",
+            "pytest",
+        ]
+    ):
+        return [sys.executable, "-I", "-c", _ISOLATED_PYTEST, ".", *command[3:]]
+    if command and command[0] in {"python", "python3"}:
+        return [sys.executable, *command[1:]]
+    return list(command)
 
 
 def initialize_git(workspace: Path) -> None:

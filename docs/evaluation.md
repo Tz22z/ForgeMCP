@@ -31,10 +31,13 @@ workspace. The harness:
 3. runs the selected agent arm;
 4. hashes visible tests again;
 5. runs the external grader with the workspace on `PYTHONPATH`; and
-6. counts a solve only when the grader passes and protected tests are unchanged.
+6. counts a solve only when the agent reaches `succeeded`, the grader passes, and
+   protected tests are unchanged.
 
 This blocks two easy sources of false success: weakening visible tests and learning or
-modifying hidden assertions.
+modifying hidden assertions. Graders import `pytest` in Python isolated mode before the
+workspace is added to `sys.path`, so a generated top-level `pytest.py` cannot shadow the
+real test runner.
 
 ## Primary metrics
 
@@ -90,12 +93,25 @@ forge evaluate benchmark.json --strategy hybrid --model MODEL_ID \
 Run arms in interleaved or randomized order when provider load may influence latency.
 Record exact package versions, image digest, model ID, date, and manifest hash.
 
+## Current formal benchmark
+
+`benchmarks/formal/manifest.json` fixes eight synthetic Python cases and external
+graders. Three paired trials with `gpt-5.2-2025-12-11` produced 24 attempts per arm.
+Baseline and hybrid each reached 17/24 strict solves (70.8%); hybrid reduced average
+tool calls by 17.3%, input tokens by 25.8%, and estimated cost per solve by 22.0%.
+Repeated-read ratio fell from 30.2% to 25.6% (4.6 percentage points).
+
+All 48 patches passed their external graders, but 14 runs exhausted the 12-model-call
+budget before reaching the runtime's `succeeded` state and therefore failed strict
+scoring. This distinction is preserved in the raw reports instead of being folded into
+the headline solve rate. See `benchmarks/formal/results/summary.md` for trial-level
+results, hashes, and limitations.
+
 ## Historical result caveat
 
 `benchmarks/reconstructed-swebench-verified-120.summary.json` records the recovered
 headline numbers: 54/120 baseline solves and 85/120 hybrid solves, yielding 45% and
 70.83% (reported as 71%). Raw per-instance records and the precise historical model ID
-were not recovered. Treat that file as provenance for a résumé claim, not as a newly
-reproducible scientific artifact. New benchmark claims should be based on reports emitted
-by the current harness.
-
+were not recovered. Treat that file as historical provenance, not as a reproduced
+scientific artifact or a current résumé claim. Current claims should use reports emitted
+by the checked-in harness.

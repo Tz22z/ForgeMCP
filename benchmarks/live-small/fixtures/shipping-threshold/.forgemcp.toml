@@ -1,0 +1,9 @@
+[agent]
+context_token_budget = 1000
+
+[budget]
+max_tool_calls = 20
+max_model_calls = 12
+
+[tools]
+approval_mode = "never"

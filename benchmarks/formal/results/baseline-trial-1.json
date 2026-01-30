@@ -1,0 +1,208 @@
+{
+  "strategy": "baseline",
+  "model": "gpt-5.2-2025-12-11",
+  "pricing": {
+    "input_per_million": 1.75,
+    "output_per_million": 14.0
+  },
+  "manifest_sha256": "4c74e04fa3a659d835302e137e918135aec90776daa9e99701b827eb06d4422d",
+  "environment": {
+    "forgemcp": "0.1.0",
+    "python": "3.13.15",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "attempted": 8,
+  "solved": 7,
+  "solve_rate": 0.875,
+  "total_tool_calls": 68,
+  "average_tool_calls": 8.5,
+  "total_model_calls": 75,
+  "total_input_tokens": 158970,
+  "total_output_tokens": 4011,
+  "estimated_total_cost_usd": 0.334351,
+  "cost_per_solved_usd": 0.047764,
+  "average_repeated_read_ratio": 0.3019,
+  "generated_at": "2026-09-15T21:02:28.206246Z",
+  "records": [
+    {
+      "instance_id": "formal_8__expired-cache-entry",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Implemented correct expiry-boundary behavior in `ExpiringCache.get`.\n\n### Fix\n- `get()` now treats `expires_at <= now` as expired.\n- When expired, it **removes the entry** from `_entries` and returns `None`.\n- Fresh entries and missing entries keep existing behavior.\n\n### Evidence\nPatch applied to `cache.py`:\n```diff\nif entry.expires_at <= now:\n-    return entry.value\n+    self._entries.pop(key, None)\n+    return None\n```\n\n### Tests\n- Ran full test suite: **2 passed** (`tests/test_cache.py`).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 18209,
+        "output_tokens": 420,
+        "wall_seconds": 31.71
+      },
+      "estimated_cost_usd": 0.037746,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__project-permission-invalidation",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault:\n- `ProjectService.delete_project()` only removed the project from `ProjectCache` and did not touch `PermissionCache`, even though `PermissionCache` already provides `invalidate_project(project_id)` to drop all `(project_id, user_id)` entries.\n\nFix (smallest coherent change, no API/test changes):\n- Updated `service.py` so `delete_project()` now:\n  1) deletes the project from `ProjectCache`\n  2) calls `self.permissions.invalidate_project(project_id)` to remove **only** permission entries for that project, leaving unrelated projects’ cached permissions intact.\n\nCode change:\n- `service.py`: added `self.permissions.invalidate_project(project_id)` after `self.projects.delete(project_id)`.\n\nTests:\n- Ran the full test suite: **1 passed**.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 18319,
+        "output_tokens": 470,
+        "wall_seconds": 16.639
+      },
+      "estimated_cost_usd": 0.038638,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__retry-budget-boundary",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the boundary bug in `retry_budget.should_retry`: it was allowing `attempt_number == max_attempts` to retry (an extra attempt).\n\n### Fix\nUpdated the retry decision to only allow retries when *another attempt remains*:\n\n- `attempt_number < max_attempts` (instead of `<=`)\n\n```diff\ndiff --git a/retry_budget.py b/retry_budget.py\n@@\n-    return attempt_number <= max_attempts\n+    return attempt_number < max_attempts\n```\n\n### Behavioral outcomes (per acceptance criteria)\n- Attempt 1 of 3 → `1 < 3` → can retry ✅\n- Attempt 2 of 3 → `2 < 3` → can retry ✅\n- Attempt 3 of 3 → `3 < 3` → cannot retry ✅\n- Attempt numbers below 1 still raise `ValueError` ✅\n\n### Tests\nAll existing tests pass unchanged:\n\n- `2 passed`",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 17434,
+        "output_tokens": 447,
+        "wall_seconds": 14.448
+      },
+      "estimated_cost_usd": 0.036767,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__shipping-threshold",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault in `checkout.py`: shipping eligibility was being computed from the **discounted** subtotal:\n\n```py\nshipping = Decimal(\"0.00\") if discounted >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\nThat causes a Pro cart at `$50.00` to drop to `$45.00` after the 10% discount and incorrectly lose free shipping.\n\n### Fix\nUpdated shipping eligibility to use the **pre-discount gross subtotal**, while still applying the discount before adding shipping to the final total:\n\n```py\n# Free shipping eligibility uses the pre-discount gross subtotal.\nshipping = Decimal(\"0.00\") if subtotal >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\n### Result vs acceptance criteria\n- `$50.00` Pro cart gets 10% discount → `$5.00`\n- Shipping is `$0.00` because gross subtotal is `$50.00`\n- Total = `$50.00 - $5.00 + $0.00` = **$45.00**\n\n### Tests\nDid not change tests. All tests pass:\n\n- `2 passed`",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 20363,
+        "output_tokens": 545,
+        "wall_seconds": 19.133
+      },
+      "estimated_cost_usd": 0.043265,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__cursor-boundary",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Implemented the correct “no phantom cursor on exact final page” behavior in `paginate`.\n\n### What changed\n- **`pager.py`**: fixed the boundary condition for `next_cursor`.\n  - Before: returned a cursor when `cursor + page_size <= len(items)` (this incorrectly emits a cursor when the page ends exactly at the end of the list).\n  - After: returns a cursor only when `cursor + page_size < len(items)` (i.e., **only if at least one item remains**).\n\n```diff\n- next_cursor = cursor + page_size if cursor + page_size <= len(items) else None\n+ next_cursor = cursor + page_size if cursor + page_size < len(items) else None\n```\n\n### Acceptance criteria check\n- Full non-final page returns next zero-based cursor: **yes**\n- Exact final page returns `None`: **yes (fixed)**\n- Partial final page returns `None`: **unchanged**\n- Cursor validation unchanged: **unchanged**\n- Tests unchanged: **yes**\n\n### Tests\n- `pytest tests/test_pager.py` ✅\n- full suite (`pytest .`) ✅\n\n### Note about repo state\n`git status` shows local changes under `.forgemcp/` (e.g. `.forgemcp/index.sqlite3`). The tool environment blocks modifying/removing those paths, but they are unrelated to the product fix. The functional/code change is only in `pager.py`.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 10,
+        "model_calls": 11,
+        "input_tokens": 25796,
+        "output_tokens": 646,
+        "wall_seconds": 23.406
+      },
+      "estimated_cost_usd": 0.054187,
+      "repeated_read_ratio": 0.6,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "pager.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__idempotent-charge",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated fault: `PaymentProcessor.charge()` always called the gateway and overwrote the ledger entry, so duplicate idempotency keys resulted in multiple charges.\n\nFix applied (public API unchanged):\n- `PaymentProcessor.charge()` now checks `ledger.get(idempotency_key)` first.\n- If a receipt already exists, it returns that receipt immediately **without calling the gateway**.\n- Otherwise it calls the gateway once, records the receipt, and returns it.\n\nCode change: `payment.py`\n- Added an early-return on existing receipt.\n\nTests:\n- Ran full test suite: `1 passed`.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 7,
+        "model_calls": 8,
+        "input_tokens": 17166,
+        "output_tokens": 475,
+        "wall_seconds": 12.606
+      },
+      "estimated_cost_usd": 0.036691,
+      "repeated_read_ratio": 0.6154,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "payment.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__config-precedence",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Fixed `resolve_timeout` precedence so the environment value cannot be overridden by the config file.\n\n### What changed\nIn `config.py`, reordered the resolution logic to match the required precedence:\n\n1. `explicit` (if provided)\n2. `environment` (if provided)\n3. `config_file` (if provided)\n4. `default` (fallback)\n\nValidation and return type are preserved (`int`, positive-only via `_positive`).\n\n### Tests\n- Ran `tests/test_config.py`: **pass**\n- Ran full suite: **pass**",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 6,
+        "model_calls": 7,
+        "input_tokens": 13920,
+        "output_tokens": 476,
+        "wall_seconds": 14.065
+      },
+      "estimated_cost_usd": 0.031024,
+      "repeated_read_ratio": 0.6,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "config.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__nested-snapshot",
+      "strategy": "baseline",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 27763,
+        "output_tokens": 532,
+        "wall_seconds": 17.981
+      },
+      "estimated_cost_usd": 0.056033,
+      "repeated_read_ratio": 0.6,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "history.py"
+      ]
+    }
+  ]
+}

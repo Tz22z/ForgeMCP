@@ -1,0 +1,208 @@
+{
+  "strategy": "hybrid",
+  "model": "gpt-5.2-2025-12-11",
+  "pricing": {
+    "input_per_million": 1.75,
+    "output_per_million": 14.0
+  },
+  "manifest_sha256": "4c74e04fa3a659d835302e137e918135aec90776daa9e99701b827eb06d4422d",
+  "environment": {
+    "forgemcp": "0.1.0",
+    "python": "3.13.15",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "attempted": 8,
+  "solved": 7,
+  "solve_rate": 0.875,
+  "total_tool_calls": 61,
+  "average_tool_calls": 7.625,
+  "total_model_calls": 68,
+  "total_input_tokens": 129972,
+  "total_output_tokens": 3625,
+  "estimated_total_cost_usd": 0.278201,
+  "cost_per_solved_usd": 0.039743,
+  "average_repeated_read_ratio": 0.2557,
+  "generated_at": "2026-09-15T21:04:48.338264Z",
+  "records": [
+    {
+      "instance_id": "formal_8__expired-cache-entry",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault in `cache.py`: `ExpiringCache.get()` was returning the cached value even when `entry.expires_at <= now` (i.e., exactly at the boundary and after expiry).\n\n### Fix applied (no test changes)\nUpdated `ExpiringCache.get()` to:\n- Treat `expires_at <= now` as expired\n- Remove the expired entry from `_entries`\n- Return `None` for expired entries\n- Keep existing behavior for missing (returns `None`) and fresh entries (returns value)\n\nPatch (effective logic):\n```python\nif entry.expires_at <= now:\n    self._entries.pop(key, None)\n    return None\nreturn entry.value\n```\n\n### Verification\n- Ran the full test suite: all tests pass (`2 passed`).\n- Diff confirms only the intended behavior change in `cache.py`.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 6,
+        "model_calls": 7,
+        "input_tokens": 11815,
+        "output_tokens": 421,
+        "wall_seconds": 16.43
+      },
+      "estimated_cost_usd": 0.02657,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__project-permission-invalidation",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented permission invalidation on project deletion without changing any public APIs or tests.\n\n### Change made\n- **`ProjectService.delete_project`** now:\n  1. Deletes the project from `ProjectCache`\n  2. Calls `PermissionCache.invalidate_project(project_id)` to remove **all** cached permission entries for that project while leaving other projects’ entries intact.\n\n### Patch\n- Updated `service.py` to include:\n  ```python\n  self.permissions.invalidate_project(project_id)\n  ```\n\n### Verification\n- Ran the full test suite: **all tests pass** (`1 passed`).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 3,
+        "model_calls": 4,
+        "input_tokens": 6208,
+        "output_tokens": 299,
+        "wall_seconds": 7.178
+      },
+      "estimated_cost_usd": 0.01505,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__retry-budget-boundary",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault: `should_retry` was returning `True` for `attempt_number == max_attempts`, permitting an extra attempt.\n\n### Fix\nUpdated `should_retry` to allow retries only when another attempt remains (one-based attempts):\n\n- `return attempt_number < max_attempts` (instead of `<=`)\n\n`ValueError` behavior for `attempt_number < 1` is unchanged.\n\n### Verification\n- Ran `tests/test_retry_budget.py`: **passed**\n- Ran full test suite: **passed**\n\nDiff applied:\n```diff\n-    return attempt_number <= max_attempts\n+    # attempt_number is one-based; you may retry only if another attempt remains.\n+    return attempt_number < max_attempts\n```",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 14456,
+        "output_tokens": 422,
+        "wall_seconds": 17.022
+      },
+      "estimated_cost_usd": 0.031206,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__shipping-threshold",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Fixed the free-shipping eligibility check to use the **pre-discount subtotal** (gross) instead of the discounted amount.\n\n### Change\nIn `checkout.py`, updated:\n\n- **Before:** free shipping if `discounted >= FREE_SHIPPING_MINIMUM`\n- **After:** free shipping if `subtotal >= FREE_SHIPPING_MINIMUM`\n\nThis preserves the behavior that discounts still apply to the customer subtotal, and shipping is added afterward—while ensuring a $50 Pro cart:\n- gets 10% off ($5),\n- still qualifies for free shipping (based on gross $50),\n- totals **$45**.\n\n### Verification\n- Ran `tests/test_checkout.py`: **passed**\n- Ran full test suite: **passed**\n\nDiff is limited to the single eligibility line (plus clarifying comment) in `checkout.py`.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 17105,
+        "output_tokens": 446,
+        "wall_seconds": 14.294
+      },
+      "estimated_cost_usd": 0.036178,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__cursor-boundary",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented the boundary fix in `paginate` so it no longer emits a phantom cursor when the returned page ends exactly at `len(items)`.\n\n### Change\n- `pager.py`: adjusted next-cursor condition from `<= len(items)` to `< len(items)`:\n\n```py\n# Only return a cursor when at least one item remains after this page.\nnext_cursor = cursor + page_size if cursor + page_size < len(items) else None\n```\n\n### Verification\n- Ran `tests/test_pager.py` ✅\n- Ran full test suite (`tests`) ✅\n\n### Note on repo state\n`git diff` shows `.forgemcp/index.sqlite3` and `.forgemcp/runs/` as modified/untracked, but deletion is blocked by a protected-path policy. The functional code change is only in `pager.py` and all tests pass.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 10,
+        "model_calls": 11,
+        "input_tokens": 20839,
+        "output_tokens": 598,
+        "wall_seconds": 17.148
+      },
+      "estimated_cost_usd": 0.04484,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "pager.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__idempotent-charge",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented idempotent charging in `PaymentProcessor.charge` without changing the public API.\n\n### What changed\n- `PaymentProcessor.charge` now checks the `ChargeLedger` for an existing receipt for the given `idempotency_key`.\n- If a receipt exists, it returns it immediately and **does not call the gateway again**.\n- If no receipt exists, it calls the gateway once, records the receipt, and returns it.\n\n### Patch (payment.py)\n- Added:\n  - `existing_receipt = self.ledger.get(idempotency_key)`\n  - Early return when present\n\n### Verification\n- Ran `tests/test_payment.py`: **passed**\n- Ran full test suite: **passed**\n\nThis satisfies:\n- First request calls gateway + records receipt\n- Duplicate key returns original receipt\n- Duplicate key does not call gateway again\n- Different keys remain independent (ledger lookup is per key)",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 6,
+        "model_calls": 7,
+        "input_tokens": 13821,
+        "output_tokens": 515,
+        "wall_seconds": 11.54
+      },
+      "estimated_cost_usd": 0.031397,
+      "repeated_read_ratio": 0.5455,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "payment.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__config-precedence",
+      "strategy": "hybrid",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 23852,
+        "output_tokens": 457,
+        "wall_seconds": 16.668
+      },
+      "estimated_cost_usd": 0.048139,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "config.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__nested-snapshot",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated fault: `SnapshotHistory.save()` used `self.state.copy()` (shallow copy), which aliases nested mutable objects (dicts/lists). That means later in-place mutations to nested structures would affect previously “saved” snapshots.\n\nFix (smallest coherent change):\n- Updated `save()` to store a deep copy of the state via `copy.deepcopy(self.state)` so nested dictionaries/lists are independent.\n\nCode change in `history.py`:\n- Added `import copy`\n- Replaced shallow copy with `copy.deepcopy(...)`\n\nVerification:\n- Ran `tests/test_history.py`: pass\n- Ran full test suite: pass",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 21876,
+        "output_tokens": 467,
+        "wall_seconds": 16.271
+      },
+      "estimated_cost_usd": 0.044821,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "history.py"
+      ]
+    }
+  ]
+}

@@ -131,7 +131,7 @@ def test_failed_automatic_verification_returns_to_repair_loop(tmp_path: Path) ->
     assert result.status == TaskStatus.SUCCEEDED
     assert result.usage.model_calls == 3
     assert result.usage.tool_calls == 3
-    assert model.turns[1].tool_results[0].tool_name == "run_tests"
+    assert model.turns[1].tool_results == []
     assert "Automatic verification failed" in model.turns[1].prompt
 
 

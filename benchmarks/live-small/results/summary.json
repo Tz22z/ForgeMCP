@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "experiment": "ForgeMCP live-small baseline vs hybrid",
+  "description": "Four-case API-backed integration pilot with lexical distractors and external graders.",
+  "generated_at": "2026-09-22T23:02:08.293524+00:00",
+  "model": "gpt-5.2-2025-12-11",
+  "pricing_per_million_tokens_usd": {
+    "input": 1.75,
+    "output": 14.0
+  },
+  "trial_count": 3,
+  "cases_per_trial": 4,
+  "manifest": {
+    "path": "benchmarks/live-small/manifest.json",
+    "sha256": "862a194f75c5c512d8a604a4229e96cd1f09d4102d6e0c2d784b2b773d971517",
+    "benchmark_inputs_sha256": "0c05d33fcc2228480a45f18f6276cb36e706b679d7a1bc5ff3f6667da4958e55",
+    "benchmark_tree_sha256": "418e555547f767b42c1d14a63159cc565d0a5b9384876f637b8e9c8366246907"
+  },
+  "runtime": {
+    "git_head": "1b96ba9e0849b2da54d2c99f0c3d2fd609067a70",
+    "source_tree_sha256": "69c4195323a1b2f97b7c400fda79112f65b67a3dba694afe8b48f67e3bbc1b61",
+    "python": "3.13.15",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "strategies": {
+    "baseline": {
+      "attempted": 12,
+      "solved": 12,
+      "solve_rate": 1.0,
+      "average_tool_calls": 9.333333,
+      "average_model_calls": 10.333333,
+      "average_input_tokens": 27293.0,
+      "average_output_tokens": 513.083,
+      "total_input_tokens": 327516,
+      "total_output_tokens": 6157,
+      "estimated_total_cost_usd": 0.65935,
+      "cost_per_solved_usd": 0.054946,
+      "average_repeated_read_ratio": 0.0,
+      "hidden_grader_passes": 12,
+      "protected_file_violations": 0,
+      "non_success_terminal_states": 0
+    },
+    "hybrid": {
+      "attempted": 12,
+      "solved": 11,
+      "solve_rate": 0.916667,
+      "average_tool_calls": 7.166667,
+      "average_model_calls": 8.166667,
+      "average_input_tokens": 15028.0,
+      "average_output_tokens": 506.333,
+      "total_input_tokens": 180336,
+      "total_output_tokens": 6076,
+      "estimated_total_cost_usd": 0.40065,
+      "cost_per_solved_usd": 0.036423,
+      "average_repeated_read_ratio": 0.0,
+      "hidden_grader_passes": 12,
+      "protected_file_violations": 1,
+      "non_success_terminal_states": 0
+    }
+  },
+  "comparison": {
+    "solve_rate_change_percentage_points": -8.333,
+    "average_tool_calls_relative_change": -0.232143,
+    "average_model_calls_relative_change": -0.209677,
+    "average_input_tokens_relative_change": -0.449383,
+    "average_output_tokens_relative_change": -0.013156,
+    "average_repeated_read_ratio_change_percentage_points": 0.0,
+    "estimated_total_cost_relative_change": -0.392356,
+    "cost_per_solved_relative_change": -0.337113
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "baseline": {
+        "attempted": 4,
+        "solved": 4,
+        "solve_rate": 1.0,
+        "average_tool_calls": 9.0,
+        "average_model_calls": 10.0,
+        "average_input_tokens": 24184.0,
+        "average_output_tokens": 461.25,
+        "total_input_tokens": 96736,
+        "total_output_tokens": 1845,
+        "estimated_total_cost_usd": 0.195118,
+        "cost_per_solved_usd": 0.04878,
+        "average_repeated_read_ratio": 0.0,
+        "hidden_grader_passes": 4,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 0
+      },
+      "hybrid": {
+        "attempted": 4,
+        "solved": 3,
+        "solve_rate": 0.75,
+        "average_tool_calls": 8.0,
+        "average_model_calls": 9.0,
+        "average_input_tokens": 17104.25,
+        "average_output_tokens": 513.0,
+        "total_input_tokens": 68417,
+        "total_output_tokens": 2052,
+        "estimated_total_cost_usd": 0.148457,
+        "cost_per_solved_usd": 0.049486,
+        "average_repeated_read_ratio": 0.0,
+        "hidden_grader_passes": 4,
+        "protected_file_violations": 1,
+        "non_success_terminal_states": 0
+      }
+    },
+    {
+      "trial": 2,
+      "baseline": {
+        "attempted": 4,
+        "solved": 4,
+        "solve_rate": 1.0,
+        "average_tool_calls": 9.25,
+        "average_model_calls": 10.25,
+        "average_input_tokens": 26373.25,
+        "average_output_tokens": 513.75,
+        "total_input_tokens": 105493,
+        "total_output_tokens": 2055,
+        "estimated_total_cost_usd": 0.213382,
+        "cost_per_solved_usd": 0.053345,
+        "average_repeated_read_ratio": 0.0,
+        "hidden_grader_passes": 4,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 0
+      },
+      "hybrid": {
+        "attempted": 4,
+        "solved": 4,
+        "solve_rate": 1.0,
+        "average_tool_calls": 7.5,
+        "average_model_calls": 8.5,
+        "average_input_tokens": 15963.0,
+        "average_output_tokens": 514.5,
+        "total_input_tokens": 63852,
+        "total_output_tokens": 2058,
+        "estimated_total_cost_usd": 0.140552,
+        "cost_per_solved_usd": 0.035138,
+        "average_repeated_read_ratio": 0.0,
+        "hidden_grader_passes": 4,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 0
+      }
+    },
+    {
+      "trial": 3,
+      "baseline": {
+        "attempted": 4,
+        "solved": 4,
+        "solve_rate": 1.0,
+        "average_tool_calls": 9.75,
+        "average_model_calls": 10.75,
+        "average_input_tokens": 31321.75,
+        "average_output_tokens": 564.25,
+        "total_input_tokens": 125287,
+        "total_output_tokens": 2257,
+        "estimated_total_cost_usd": 0.25085,
+        "cost_per_solved_usd": 0.062713,
+        "average_repeated_read_ratio": 0.0,
+        "hidden_grader_passes": 4,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 0
+      },
+      "hybrid": {
+        "attempted": 4,
+        "solved": 4,
+        "solve_rate": 1.0,
+        "average_tool_calls": 6.0,
+        "average_model_calls": 7.0,
+        "average_input_tokens": 12016.75,
+        "average_output_tokens": 491.5,
+        "total_input_tokens": 48067,
+        "total_output_tokens": 1966,
+        "estimated_total_cost_usd": 0.111641,
+        "cost_per_solved_usd": 0.02791,
+        "average_repeated_read_ratio": 0.0,
+        "hidden_grader_passes": 4,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 0
+      }
+    }
+  ],
+  "per_instance": {
+    "live_small__expired-cache-entry": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 2,
+        "attempted": 3,
+        "protected_file_violations": 1
+      }
+    },
+    "live_small__project-permission-invalidation": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "live_small__retry-budget-boundary": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "live_small__shipping-threshold": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    }
+  },
+  "source_reports": [
+    {
+      "strategy": "baseline",
+      "trial": 1,
+      "path": "benchmarks/live-small/results/baseline-trial-1.json",
+      "sha256": "63fc1e0333cf0d48696f909c31208505c44fe770fa9705920205cbf4ec6f0607"
+    },
+    {
+      "strategy": "baseline",
+      "trial": 2,
+      "path": "benchmarks/live-small/results/baseline-trial-2.json",
+      "sha256": "ecdd16cea151b573c7920d70abb6d3238647326d911ea396fe0a7bb9ba19ee8b"
+    },
+    {
+      "strategy": "baseline",
+      "trial": 3,
+      "path": "benchmarks/live-small/results/baseline-trial-3.json",
+      "sha256": "642bd917daaccf795d0b95f28d74f45ade3e7f0a653dbed88972a554475c7ca0"
+    },
+    {
+      "strategy": "hybrid",
+      "trial": 1,
+      "path": "benchmarks/live-small/results/hybrid-trial-1.json",
+      "sha256": "4f9c04ee74a1154986a1609b4c78ea1e5de707cf0e2583816c3ed8322643af00"
+    },
+    {
+      "strategy": "hybrid",
+      "trial": 2,
+      "path": "benchmarks/live-small/results/hybrid-trial-2.json",
+      "sha256": "a5fac49d9c65396e43b54e2414976d76f355b0d82e4727cfacdd7e02f3b8fe21"
+    },
+    {
+      "strategy": "hybrid",
+      "trial": 3,
+      "path": "benchmarks/live-small/results/hybrid-trial-3.json",
+      "sha256": "ffd036ec8fb06c4fffb1827f677e94cd6b345d725e66d94cb11d3dd9482bd854"
+    }
+  ],
+  "limitations": [
+    "This is a four-case synthetic integration benchmark, not SWE-bench.",
+    "Three trials are enough for regression evidence, not a precise population estimate.",
+    "One hybrid run changed a protected test and was correctly rejected.",
+    "Repeated-read ratio stayed at zero and does not support a repeated-read claim."
+  ]
+}

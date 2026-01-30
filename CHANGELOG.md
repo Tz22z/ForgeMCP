@@ -2,6 +2,35 @@
 
 All notable changes to ForgeMCP are documented here.
 
+## Unreleased
+
+### Fixed
+
+- Normalize Pydantic schemas for OpenAI strict function calling by requiring every
+  declared property and forbidding additional properties.
+- Keep runtime-generated verification results out of Responses API function-call
+  history, preventing invalid synthetic call IDs on repair turns.
+- Run evaluation pytest entry points in isolated mode so fixture files cannot shadow
+  the test framework, and require a successful agent terminal state for a solve.
+
+### Added
+
+- Preserve agent summaries, pricing inputs, manifest hashes, and runtime environment
+  metadata in evaluation reports.
+- Add a four-case live integration benchmark with external graders and lexical
+  distractors for baseline-versus-hybrid experiments.
+- Extend the live evaluation to a formal eight-case, three-trial paired benchmark with
+  six raw reports, external graders, input/report hashes, and an auditable summary.
+- Add a generic paired-trial summarizer that verifies model, manifest, pricing, and case
+  order before reporting solve rate, tool calls, tokens, repeated reads, and cost.
+
+### Verification
+
+- 63 automated tests, Ruff formatting/lint, and strict MyPy pass.
+- Wheel and source distribution build successfully.
+- Formal benchmark: 3 paired trials x 8 cases; both arms solve 17/24, while hybrid
+  reduces average tool calls 17.3%, input tokens 25.8%, and cost per solve 22.0%.
+
 ## 0.1.0 — 2026-01-28
 
 ### Added

@@ -34,6 +34,7 @@ class EvaluationRecord(BaseModel):
     instance_id: str
     strategy: str
     status: TaskStatus
+    agent_summary: str = ""
     solved: bool
     grader_exit_code: int
     grader_summary: str
@@ -47,6 +48,9 @@ class EvaluationRecord(BaseModel):
 class AggregateReport(BaseModel):
     strategy: str
     model: str
+    pricing: Pricing = Field(default_factory=Pricing)
+    manifest_sha256: str | None = None
+    environment: dict[str, str] = Field(default_factory=dict)
     attempted: int
     solved: int
     solve_rate: float

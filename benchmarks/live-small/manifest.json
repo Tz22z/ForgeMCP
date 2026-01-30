@@ -1,0 +1,77 @@
+{
+  "name": "ForgeMCP live-small baseline vs hybrid",
+  "description": "Four-case API-backed integration pilot with lexical distractors and external graders.",
+  "limitations": [
+    "This is a four-case synthetic integration benchmark, not SWE-bench.",
+    "Three trials are enough for regression evidence, not a precise population estimate.",
+    "One hybrid run changed a protected test and was correctly rejected.",
+    "Repeated-read ratio stayed at zero and does not support a repeated-read claim."
+  ],
+  "cases": [
+    {
+      "instance_id": "live_small__expired-cache-entry",
+      "fixture": "fixtures/expired-cache-entry",
+      "grader": "graders/expired-cache-entry",
+      "issue": {
+        "title": "ExpiringCache returns stale values at the expiry boundary",
+        "body": "ExpiringCache.get must treat expires_at <= now as expired, remove the stale entry, and return None. Fresh and missing entries must keep their current behavior.",
+        "acceptance_criteria": [
+          "An entry with expires_at equal to now returns None",
+          "An entry with expires_at before now returns None",
+          "Expired entries are removed from the cache",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "live_small__project-permission-invalidation",
+      "fixture": "fixtures/project-permission-invalidation",
+      "grader": "graders/project-permission-invalidation",
+      "issue": {
+        "title": "Deleting a project leaves derived PermissionCache entries alive",
+        "body": "ProjectService.delete_project must invalidate permissions derived for that project after deleting it. Entries for other projects must remain cached and the public APIs must not change.",
+        "acceptance_criteria": [
+          "The project is removed from ProjectCache",
+          "Every PermissionCache entry for the deleted project is removed",
+          "PermissionCache entries for unrelated projects remain",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "live_small__retry-budget-boundary",
+      "fixture": "fixtures/retry-budget-boundary",
+      "grader": "graders/retry-budget-boundary",
+      "issue": {
+        "title": "RetryBudget permits an extra attempt",
+        "body": "should_retry receives a one-based attempt_number and the total max_attempts. It should return true only when another attempt remains.",
+        "acceptance_criteria": [
+          "Attempt 1 of 3 can retry",
+          "Attempt 2 of 3 can retry",
+          "Attempt 3 of 3 cannot retry",
+          "Values below one still raise ValueError",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    },
+    {
+      "instance_id": "live_small__shipping-threshold",
+      "fixture": "fixtures/shipping-threshold",
+      "grader": "graders/shipping-threshold",
+      "issue": {
+        "title": "Pro discount incorrectly removes free shipping",
+        "body": "Free shipping eligibility uses the pre-discount gross subtotal. The final total still applies the customer discount before adding shipping.",
+        "acceptance_criteria": [
+          "A 50 dollar Pro cart receives a 10 percent discount",
+          "A 50 dollar Pro cart has zero shipping",
+          "The resulting total is 45 dollars",
+          "Do not change tests"
+        ]
+      },
+      "test_command": ["python", "-m", "pytest", "-q"]
+    }
+  ]
+}

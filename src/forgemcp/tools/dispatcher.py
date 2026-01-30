@@ -36,12 +36,14 @@ class ToolDispatcher:
     def definitions(self) -> list[dict[str, Any]]:
         definitions = []
         for name, (schema, _risk, description) in TOOL_SCHEMAS.items():
+            parameters = schema.model_json_schema()
+            _require_all_object_properties(parameters)
             definitions.append(
                 {
                     "type": "function",
                     "name": name,
                     "description": description,
-                    "parameters": schema.model_json_schema(),
+                    "parameters": parameters,
                     "strict": True,
                 }
             )
@@ -89,3 +91,18 @@ class ToolDispatcher:
             )
         self.journal.append("tool.finished", result.model_dump(mode="json"))
         return result
+
+
+def _require_all_object_properties(schema: dict[str, Any]) -> None:
+    """Normalize Pydantic output to OpenAI's strict function-schema subset."""
+    properties = schema.get("properties")
+    if isinstance(properties, dict):
+        schema["required"] = list(properties)
+        schema["additionalProperties"] = False
+    for value in schema.values():
+        if isinstance(value, dict):
+            _require_all_object_properties(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    _require_all_object_properties(item)

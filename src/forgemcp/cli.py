@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import platform
 from pathlib import Path
 from typing import Annotated
 
@@ -12,6 +14,7 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.table import Table
 
+from forgemcp import __version__
 from forgemcp.agent.model import OpenAIResponsesModel
 from forgemcp.agent.runtime import AgentRuntime
 from forgemcp.config import load_config
@@ -19,7 +22,12 @@ from forgemcp.context.index import RepositoryIndex
 from forgemcp.context.selector import ContextSelector
 from forgemcp.core.models import Issue, RunResult, TaskStatus
 from forgemcp.demo import cleanup_demo, run_demo
-from forgemcp.evaluation.harness import EvaluationHarness, load_manifest, write_report
+from forgemcp.evaluation.harness import (
+    EvaluationHarness,
+    load_manifest,
+    normalize_test_command,
+    write_report,
+)
 from forgemcp.evaluation.models import EvaluationCase, Pricing
 
 app = typer.Typer(no_args_is_help=True, help="Verified repository-level coding agent")
@@ -121,7 +129,7 @@ def evaluate(
         config = load_config(repository)
         config.model = model
         config.context_strategy = "baseline" if selected_strategy == "baseline" else "hybrid"
-        config.test_command = case.test_command
+        config.test_command = normalize_test_command(case.test_command)
         return AgentRuntime(config, OpenAIResponsesModel(model)).run(case.issue)
 
     harness = EvaluationHarness(
@@ -133,6 +141,12 @@ def evaluate(
         ),
     )
     report = harness.run(cases, strategy)
+    report.manifest_sha256 = hashlib.sha256(manifest.read_bytes()).hexdigest()
+    report.environment = {
+        "forgemcp": __version__,
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+    }
     write_report(report, report_path)
     table = Table("Metric", "Value", title=f"Evaluation · {strategy}")
     table.add_row("Solved", f"{report.solved}/{report.attempted}")

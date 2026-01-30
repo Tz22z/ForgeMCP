@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "experiment": "ForgeMCP formal-8 baseline vs hybrid",
+  "description": "Eight-case, API-backed paired benchmark covering boundary conditions, cross-file invalidation, idempotency, configuration precedence, and mutable state.",
+  "generated_at": "2026-09-22T23:02:08.243510+00:00",
+  "model": "gpt-5.2-2025-12-11",
+  "pricing_per_million_tokens_usd": {
+    "input": 1.75,
+    "output": 14.0
+  },
+  "trial_count": 3,
+  "cases_per_trial": 8,
+  "manifest": {
+    "path": "benchmarks/formal/manifest.json",
+    "sha256": "4c74e04fa3a659d835302e137e918135aec90776daa9e99701b827eb06d4422d",
+    "benchmark_inputs_sha256": "dc409849e1de0f3f3f6baafea53901d96a08e9378ef858d86ccbd9cf78879bd1",
+    "benchmark_tree_sha256": "6d542756242378b184c10f9cd6a7abe86891cc917fc4572542236fd09ee6eb62"
+  },
+  "runtime": {
+    "git_head": "1b96ba9e0849b2da54d2c99f0c3d2fd609067a70",
+    "source_tree_sha256": "69c4195323a1b2f97b7c400fda79112f65b67a3dba694afe8b48f67e3bbc1b61",
+    "python": "3.13.15",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "strategies": {
+    "baseline": {
+      "attempted": 24,
+      "solved": 17,
+      "solve_rate": 0.708333,
+      "average_tool_calls": 9.416667,
+      "average_model_calls": 10.125,
+      "average_input_tokens": 22258.208,
+      "average_output_tokens": 502.625,
+      "total_input_tokens": 534197,
+      "total_output_tokens": 12063,
+      "estimated_total_cost_usd": 1.103727,
+      "cost_per_solved_usd": 0.064925,
+      "average_repeated_read_ratio": 0.301925,
+      "hidden_grader_passes": 24,
+      "protected_file_violations": 0,
+      "non_success_terminal_states": 7
+    },
+    "hybrid": {
+      "attempted": 24,
+      "solved": 17,
+      "solve_rate": 0.708333,
+      "average_tool_calls": 7.791667,
+      "average_model_calls": 8.5,
+      "average_input_tokens": 16521.208,
+      "average_output_tokens": 496.125,
+      "total_input_tokens": 396509,
+      "total_output_tokens": 11907,
+      "estimated_total_cost_usd": 0.860587,
+      "cost_per_solved_usd": 0.050623,
+      "average_repeated_read_ratio": 0.255688,
+      "hidden_grader_passes": 24,
+      "protected_file_violations": 0,
+      "non_success_terminal_states": 7
+    }
+  },
+  "comparison": {
+    "solve_rate_change_percentage_points": 0.0,
+    "average_tool_calls_relative_change": -0.172566,
+    "average_model_calls_relative_change": -0.160494,
+    "average_input_tokens_relative_change": -0.257748,
+    "average_output_tokens_relative_change": -0.012932,
+    "average_repeated_read_ratio_change_percentage_points": -4.624,
+    "estimated_total_cost_relative_change": -0.22029,
+    "cost_per_solved_relative_change": -0.220285
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "baseline": {
+        "attempted": 8,
+        "solved": 7,
+        "solve_rate": 0.875,
+        "average_tool_calls": 8.5,
+        "average_model_calls": 9.375,
+        "average_input_tokens": 19871.25,
+        "average_output_tokens": 501.375,
+        "total_input_tokens": 158970,
+        "total_output_tokens": 4011,
+        "estimated_total_cost_usd": 0.334351,
+        "cost_per_solved_usd": 0.047764,
+        "average_repeated_read_ratio": 0.301925,
+        "hidden_grader_passes": 8,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 1
+      },
+      "hybrid": {
+        "attempted": 8,
+        "solved": 7,
+        "solve_rate": 0.875,
+        "average_tool_calls": 7.625,
+        "average_model_calls": 8.5,
+        "average_input_tokens": 16246.5,
+        "average_output_tokens": 453.125,
+        "total_input_tokens": 129972,
+        "total_output_tokens": 3625,
+        "estimated_total_cost_usd": 0.278201,
+        "cost_per_solved_usd": 0.039743,
+        "average_repeated_read_ratio": 0.255688,
+        "hidden_grader_passes": 8,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 1
+      }
+    },
+    {
+      "trial": 2,
+      "baseline": {
+        "attempted": 8,
+        "solved": 5,
+        "solve_rate": 0.625,
+        "average_tool_calls": 10.125,
+        "average_model_calls": 10.75,
+        "average_input_tokens": 24413.125,
+        "average_output_tokens": 519.0,
+        "total_input_tokens": 195305,
+        "total_output_tokens": 4152,
+        "estimated_total_cost_usd": 0.399913,
+        "cost_per_solved_usd": 0.079983,
+        "average_repeated_read_ratio": 0.301925,
+        "hidden_grader_passes": 8,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 3
+      },
+      "hybrid": {
+        "attempted": 8,
+        "solved": 4,
+        "solve_rate": 0.5,
+        "average_tool_calls": 9.125,
+        "average_model_calls": 9.625,
+        "average_input_tokens": 19612.0,
+        "average_output_tokens": 517.25,
+        "total_input_tokens": 156896,
+        "total_output_tokens": 4138,
+        "estimated_total_cost_usd": 0.332499,
+        "cost_per_solved_usd": 0.083125,
+        "average_repeated_read_ratio": 0.255688,
+        "hidden_grader_passes": 8,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 4
+      }
+    },
+    {
+      "trial": 3,
+      "baseline": {
+        "attempted": 8,
+        "solved": 5,
+        "solve_rate": 0.625,
+        "average_tool_calls": 9.625,
+        "average_model_calls": 10.25,
+        "average_input_tokens": 22490.25,
+        "average_output_tokens": 487.5,
+        "total_input_tokens": 179922,
+        "total_output_tokens": 3900,
+        "estimated_total_cost_usd": 0.369463,
+        "cost_per_solved_usd": 0.073893,
+        "average_repeated_read_ratio": 0.301925,
+        "hidden_grader_passes": 8,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 3
+      },
+      "hybrid": {
+        "attempted": 8,
+        "solved": 6,
+        "solve_rate": 0.75,
+        "average_tool_calls": 6.625,
+        "average_model_calls": 7.375,
+        "average_input_tokens": 13705.125,
+        "average_output_tokens": 518.0,
+        "total_input_tokens": 109641,
+        "total_output_tokens": 4144,
+        "estimated_total_cost_usd": 0.249887,
+        "cost_per_solved_usd": 0.041648,
+        "average_repeated_read_ratio": 0.255688,
+        "hidden_grader_passes": 8,
+        "protected_file_violations": 0,
+        "non_success_terminal_states": 2
+      }
+    }
+  ],
+  "per_instance": {
+    "formal_8__expired-cache-entry": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 2,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "formal_8__project-permission-invalidation": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 2,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "formal_8__retry-budget-boundary": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "formal_8__shipping-threshold": {
+      "baseline": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "formal_8__cursor-boundary": {
+      "baseline": {
+        "solved": 2,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 1,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "formal_8__idempotent-charge": {
+      "baseline": {
+        "solved": 2,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 2,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "formal_8__config-precedence": {
+      "baseline": {
+        "solved": 1,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 1,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    },
+    "formal_8__nested-snapshot": {
+      "baseline": {
+        "solved": 0,
+        "attempted": 3,
+        "protected_file_violations": 0
+      },
+      "hybrid": {
+        "solved": 3,
+        "attempted": 3,
+        "protected_file_violations": 0
+      }
+    }
+  },
+  "source_reports": [
+    {
+      "strategy": "baseline",
+      "trial": 1,
+      "path": "benchmarks/formal/results/baseline-trial-1.json",
+      "sha256": "a2893684480cb9d3f8844c8ef4058b46e4914d41fa49d5c165a2aa2ea818c5c8"
+    },
+    {
+      "strategy": "baseline",
+      "trial": 2,
+      "path": "benchmarks/formal/results/baseline-trial-2.json",
+      "sha256": "77c2f0901dc6e0fa26d1558005810e75091e495dec82bfedf36f5be0305ab279"
+    },
+    {
+      "strategy": "baseline",
+      "trial": 3,
+      "path": "benchmarks/formal/results/baseline-trial-3.json",
+      "sha256": "324117660dbb5d58d0f56e7cf0860a9216d15d9098a52ca797ebbc1d98ed5f3e"
+    },
+    {
+      "strategy": "hybrid",
+      "trial": 1,
+      "path": "benchmarks/formal/results/hybrid-trial-1.json",
+      "sha256": "e4a26f87e9d9a9f02b6350e62ab3301d84cb7163f595d18a574558b00206aa6e"
+    },
+    {
+      "strategy": "hybrid",
+      "trial": 2,
+      "path": "benchmarks/formal/results/hybrid-trial-2.json",
+      "sha256": "d522f4c740cf3e01c7ca2f04b58693b8f4e524a499c2770d6171505b3d8cee40"
+    },
+    {
+      "strategy": "hybrid",
+      "trial": 3,
+      "path": "benchmarks/formal/results/hybrid-trial-3.json",
+      "sha256": "7cd4042b14bad1641fcd068a9fac1d24f14cd11c2f4d0fee321f9c15d70acad0"
+    }
+  ],
+  "limitations": [
+    "This is an eight-case synthetic integration benchmark, not SWE-bench.",
+    "Three paired trials provide regression evidence, not a precise population estimate.",
+    "The cases are Python-only and deliberately small enough for controlled paid reruns.",
+    "The benchmark isolates context selection; it does not estimate performance across all repository tasks."
+  ]
+}

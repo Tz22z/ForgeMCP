@@ -168,7 +168,10 @@ class AgentRuntime:
                             failure_output = result.output
                         else:
                             failure_output = result.error or "test tool failed"
-                        pending_results = [result]
+                        # This verification call is created by the runtime, not the model
+                        # provider. Sending it back as a function_call_output would refer to
+                        # a call ID that does not exist in the Responses API conversation.
+                        pending_results = []
                         state.transition(TaskStatus.PLANNING)
                         refreshed_context = selector.select(
                             issue.prompt,

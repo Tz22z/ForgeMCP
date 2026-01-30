@@ -1,0 +1,107 @@
+{
+  "strategy": "hybrid",
+  "model": "gpt-5.2-2025-12-11",
+  "attempted": 4,
+  "solved": 3,
+  "solve_rate": 0.75,
+  "total_tool_calls": 32,
+  "average_tool_calls": 8.0,
+  "total_model_calls": 36,
+  "total_input_tokens": 68417,
+  "total_output_tokens": 2052,
+  "estimated_total_cost_usd": 0.148457,
+  "cost_per_solved_usd": 0.049486,
+  "average_repeated_read_ratio": 0.0,
+  "generated_at": "2026-09-15T20:35:48.489137Z",
+  "records": [
+    {
+      "instance_id": "live_small__expired-cache-entry",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault in `ExpiringCache.get`: it was returning `entry.value` even when `entry.expires_at <= now`, causing stale values at (and past) the expiry boundary.\n\n### Fix implemented (cache.py)\n- Treat `expires_at <= now` as expired.\n- Remove the expired entry from `_entries`.\n- Return `None` for expired entries.\n- Keep existing behavior for fresh and missing entries.\n\n```py\nif entry.expires_at <= now:\n    self._entries.pop(key, None)\n    return None\nreturn entry.value\n```\n\n### Verification\n- Added tests covering:\n  - `expires_at == now` returns `None` and removes the entry\n  - `expires_at < now` returns `None` and removes the entry\n- All tests pass:\n  - `pytest tests` ✅\n  - Full suite ✅",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": false,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 19495,
+        "output_tokens": 685,
+        "wall_seconds": 23.062
+      },
+      "estimated_cost_usd": 0.043706,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py",
+        "tests/test_cache_expiry_boundary.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__project-permission-invalidation",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated fault: `ProjectService.delete_project()` only removed the project from `ProjectCache` and did not clear derived permission entries, even though `PermissionCache` already provides `invalidate_project(project_id)`.\n\nFix (no public API changes, smallest coherent change):\n- Updated `ProjectService.delete_project()` to:\n  1. delete the project from `ProjectCache`\n  2. call `self.permissions.invalidate_project(project_id)` to remove all permission cache entries for that project while leaving other projects’ entries untouched.\n\nPatch (service.py):\n```py\ndef delete_project(self, project_id: str) -> None:\n    # Delete the project entry itself.\n    self.projects.delete(project_id)\n    # Invalidate any derived/cached permissions for this project.\n    self.permissions.invalidate_project(project_id)\n```\n\nTests:\n- `pytest tests/test_service.py` passed\n- Full suite passed (1 test total)",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 21024,
+        "output_tokens": 513,
+        "wall_seconds": 18.389
+      },
+      "estimated_cost_usd": 0.043974,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__retry-budget-boundary",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault: `should_retry` was returning `True` for `attempt_number == max_attempts`, which permits an extra (max_attempts+1) attempt.\n\n### Fix\nUpdated `retry_budget.should_retry` to only allow retry when another attempt remains:\n\n- `return attempt_number < max_attempts` (still raising `ValueError` for `attempt_number < 1` and `max_attempts < 1`)\n\n### Verification\n- Ran `tests/test_retry_budget.py`: **passed**\n- Ran full test suite: **passed**\n\nThis satisfies:\n- Attempt 1 of 3 can retry ✅\n- Attempt 2 of 3 can retry ✅\n- Attempt 3 of 3 cannot retry ✅\n- Values below one still raise `ValueError` ✅\n- Tests unchanged ✅",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 5,
+        "model_calls": 6,
+        "input_tokens": 8739,
+        "output_tokens": 360,
+        "wall_seconds": 11.216
+      },
+      "estimated_cost_usd": 0.020333,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__shipping-threshold",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented the correct free-shipping eligibility logic in `checkout.quote()`.\n\n### What was wrong\n`shipping` was being determined using the **discounted subtotal**, which caused Pro discounts to incorrectly drop carts below the free-shipping threshold.\n\n### Fix\nFree shipping is now determined using the **pre-discount subtotal** (`subtotal`), while the discount still reduces the items total before adding shipping.\n\nChanged in `checkout.py`:\n- `shipping = 0` if `subtotal >= FREE_SHIPPING_MINIMUM` (instead of `discounted >= ...`)\n\n### Verification\n- Existing tests pass (`2 passed`)\n- This now satisfies the acceptance case: a `$50.00` Pro cart gets a `$5.00` discount, `$0.00` shipping, total `$45.00` (with free shipping still based on the gross subtotal).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 19159,
+        "output_tokens": 494,
+        "wall_seconds": 17.067
+      },
+      "estimated_cost_usd": 0.040444,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    }
+  ]
+}

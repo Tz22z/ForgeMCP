@@ -1,0 +1,106 @@
+{
+  "strategy": "baseline",
+  "model": "gpt-5.2-2025-12-11",
+  "attempted": 4,
+  "solved": 4,
+  "solve_rate": 1.0,
+  "total_tool_calls": 37,
+  "average_tool_calls": 9.25,
+  "total_model_calls": 41,
+  "total_input_tokens": 105493,
+  "total_output_tokens": 2055,
+  "estimated_total_cost_usd": 0.213382,
+  "cost_per_solved_usd": 0.053345,
+  "average_repeated_read_ratio": 0.0,
+  "generated_at": "2026-09-15T20:38:42.480729Z",
+  "records": [
+    {
+      "instance_id": "live_small__expired-cache-entry",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Implemented correct expiry-boundary behavior in `ExpiringCache.get`.\n\n### What changed\n- `cache.py`: `ExpiringCache.get` now treats `expires_at <= now` as expired:\n  - removes the entry from `_entries`\n  - returns `None`\n\nFresh entries (`expires_at > now`) and missing entries still behave the same.\n\n### Verification\n- Ran `tests/test_cache.py`: **pass**\n- Ran full test suite: **pass**\n\nDiff (for reference):\n```diff\n if entry.expires_at <= now:\n-    return entry.value\n+    # Treat expiry boundary as expired; remove stale entry.\n+    self._entries.pop(key, None)\n+    return None\n return entry.value\n```",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 8,
+        "model_calls": 9,
+        "input_tokens": 18930,
+        "output_tokens": 451,
+        "wall_seconds": 15.406
+      },
+      "estimated_cost_usd": 0.039441,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__project-permission-invalidation",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated fault: `ProjectService.delete_project` only removed the project from `ProjectCache` and did not clear any derived `PermissionCache` entries.\n\nFix (no public API changes, smallest coherent change):\n- Updated `service.py` so `delete_project(project_id)` now:\n  1) deletes the project from `ProjectCache`\n  2) calls `PermissionCache.invalidate_project(project_id)` to remove **only** permission entries for that project (leaving unrelated project entries intact)\n\nTests:\n- Ran full test suite: **1 passed**.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 9,
+        "model_calls": 10,
+        "input_tokens": 20837,
+        "output_tokens": 458,
+        "wall_seconds": 14.023
+      },
+      "estimated_cost_usd": 0.042877,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__retry-budget-boundary",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated fault in `retry_budget.py`: `should_retry` was returning `attempt_number <= max_attempts`, which incorrectly permits an extra retry on the final attempt (e.g., attempt 3 of 3).\n\n### Fix\nUpdated the boundary check to only allow retry when *another* attempt remains:\n\n- `return attempt_number < max_attempts`\n\nKept existing `ValueError` behavior for `attempt_number < 1` (and also for `max_attempts < 1`).\n\n### Evidence (diff)\n```diff\n-    return attempt_number <= max_attempts\n+    # attempt_number is one-based and counts the attempt just made.\n+    # We should retry only if there is another attempt remaining.\n+    return attempt_number < max_attempts\n```\n\n### Test status\nAll tests pass without modification:\n\n- `2 passed`",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 10,
+        "model_calls": 11,
+        "input_tokens": 41206,
+        "output_tokens": 592,
+        "wall_seconds": 18.946
+      },
+      "estimated_cost_usd": 0.080398,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "live_small__shipping-threshold",
+      "strategy": "baseline",
+      "status": "succeeded",
+      "agent_summary": "Validated fault: `checkout.quote()` was determining free-shipping eligibility from the **discounted** subtotal:\n\n```py\nshipping = Decimal(\"0.00\") if discounted >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\nThis incorrectly removed free shipping for Pro carts where the pre-discount subtotal meets the threshold but the post-discount subtotal dips below it.\n\n### Fix (smallest coherent change)\nUpdated shipping eligibility to use the **pre-discount gross subtotal** while still applying discount before adding shipping:\n\n```py\n# Free shipping eligibility is based on the pre-discount gross subtotal.\nshipping = Decimal(\"0.00\") if subtotal >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\n### Result vs acceptance criteria\nFor a $50 Pro cart:\n- discount = $5.00 (10%)\n- shipping = $0.00 (based on gross $50 subtotal)\n- total = $45.00\n\n### Tests\nAll existing tests pass (unchanged):\n\n- `2 passed`",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 10,
+        "model_calls": 11,
+        "input_tokens": 24520,
+        "output_tokens": 554,
+        "wall_seconds": 19.346
+      },
+      "estimated_cost_usd": 0.050666,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    }
+  ]
+}

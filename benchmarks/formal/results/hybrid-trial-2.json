@@ -1,0 +1,208 @@
+{
+  "strategy": "hybrid",
+  "model": "gpt-5.2-2025-12-11",
+  "pricing": {
+    "input_per_million": 1.75,
+    "output_per_million": 14.0
+  },
+  "manifest_sha256": "4c74e04fa3a659d835302e137e918135aec90776daa9e99701b827eb06d4422d",
+  "environment": {
+    "forgemcp": "0.1.0",
+    "python": "3.13.15",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "attempted": 8,
+  "solved": 4,
+  "solve_rate": 0.5,
+  "total_tool_calls": 73,
+  "average_tool_calls": 9.125,
+  "total_model_calls": 77,
+  "total_input_tokens": 156896,
+  "total_output_tokens": 4138,
+  "estimated_total_cost_usd": 0.332499,
+  "cost_per_solved_usd": 0.083125,
+  "average_repeated_read_ratio": 0.2557,
+  "generated_at": "2026-09-15T21:07:22.563328Z",
+  "records": [
+    {
+      "instance_id": "formal_8__expired-cache-entry",
+      "strategy": "hybrid",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 24498,
+        "output_tokens": 719,
+        "wall_seconds": 24.572
+      },
+      "estimated_cost_usd": 0.052937,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__project-permission-invalidation",
+      "strategy": "hybrid",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 26831,
+        "output_tokens": 441,
+        "wall_seconds": 15.687
+      },
+      "estimated_cost_usd": 0.053128,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__retry-budget-boundary",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated the bug: `should_retry` was returning `True` for `attempt_number == max_attempts`, which incorrectly permits an extra attempt (e.g., attempt 3 of 3).\n\n### Fix\nUpdated `should_retry` to only allow retry when another attempt remains:\n\n- Keeps `ValueError` for `attempt_number < 1`\n- Keeps `ValueError` for `max_attempts < 1`\n- Changes final condition from `attempt_number <= max_attempts` to `attempt_number < max_attempts`\n\n### Result\nAll tests pass unchanged:\n\n- `2 passed`\n\nDiff summary (core logic change):\n- `return attempt_number <= max_attempts`\n+ `return attempt_number < max_attempts`",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 5,
+        "model_calls": 6,
+        "input_tokens": 8861,
+        "output_tokens": 427,
+        "wall_seconds": 10.733
+      },
+      "estimated_cost_usd": 0.021485,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__shipping-threshold",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault: `checkout.quote()` was using the **discounted** subtotal to decide free shipping:\n\n```py\nshipping = Decimal(\"0.00\") if discounted >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\nThis incorrectly removes free shipping for Pro carts where the pre-discount subtotal qualifies (e.g., $50 → $45 after 10% discount).\n\n### Fix\nUpdated `checkout.py` so **free shipping eligibility uses the pre-discount subtotal**, while the **total still uses the discounted subtotal + shipping**:\n\n```py\nshipping = Decimal(\"0.00\") if subtotal >= FREE_SHIPPING_MINIMUM else STANDARD_SHIPPING\n```\n\n### Test status\nRan the full test suite (no test changes). All tests pass:\n\n- `2 passed`\n\nThis satisfies the acceptance criteria: a $50 Pro cart gets 10% off ($5), free shipping ($0), total $45.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 4,
+        "model_calls": 5,
+        "input_tokens": 7987,
+        "output_tokens": 519,
+        "wall_seconds": 13.577
+      },
+      "estimated_cost_usd": 0.021243,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__cursor-boundary",
+      "strategy": "hybrid",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 26125,
+        "output_tokens": 445,
+        "wall_seconds": 17.382
+      },
+      "estimated_cost_usd": 0.051949,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "pager.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__idempotent-charge",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented idempotent charging in `PaymentProcessor.charge` without changing the public API or tests.\n\n### Fix\n- Before calling the gateway, `PaymentProcessor.charge` now checks `ledger.get(idempotency_key)`.\n- If a receipt already exists, it returns that receipt immediately (no gateway call).\n- Otherwise, it calls the gateway once, records the receipt, and returns it.\n\n### Evidence\n- Updated `payment.py` accordingly.\n- Ran the full test suite: **all tests pass** (`1 passed`).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 6,
+        "model_calls": 7,
+        "input_tokens": 13350,
+        "output_tokens": 433,
+        "wall_seconds": 16.459
+      },
+      "estimated_cost_usd": 0.029424,
+      "repeated_read_ratio": 0.5455,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "payment.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__config-precedence",
+      "strategy": "hybrid",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 26835,
+        "output_tokens": 557,
+        "wall_seconds": 19.275
+      },
+      "estimated_cost_usd": 0.054759,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "config.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__nested-snapshot",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented deep-copy snapshotting to prevent aliasing of nested mutable state.\n\n### What changed\n- `SnapshotHistory.save()` now stores `deepcopy(self.state)` instead of `self.state.copy()`, ensuring nested dicts/lists are independent of later in-place mutations.\n\n### Verification\n- Ran `tests/test_history.py`: **2 passed**\n- Ran full test suite: **2 passed**\n\n### Note on repo status\n- The only meaningful source change is `history.py`.\n- The tool environment reports modifications under `.forgemcp/` (e.g., `index.sqlite3`, `runs/`), but writes/deletes there are blocked as a protected path, so I can’t clean those up from within this session.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 10,
+        "model_calls": 11,
+        "input_tokens": 22409,
+        "output_tokens": 597,
+        "wall_seconds": 18.783
+      },
+      "estimated_cost_usd": 0.047574,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "history.py"
+      ]
+    }
+  ]
+}

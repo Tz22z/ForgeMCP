@@ -18,23 +18,30 @@ reliably:
 
 **Stack:** Python · MCP · Tree-sitter · OpenAI Responses API · Docker · Pytest · SQLite
 
-## Reconstructed benchmark snapshot
+## Auditable benchmark snapshot
 
-The original local Git object database and raw run records were lost. This repository
-reconstructs the implementation and labels every recovered commit with a
-`Reconstructed-From` trailer. The following is the historical experiment summary, not
-a claim that this checkout reran 120 paid model tasks:
+The checked-in formal benchmark uses eight synthetic repository defects, three paired
+trials, the pinned `gpt-5.2-2025-12-11` snapshot, identical 12-model-call budgets, and
+external graders. Each arm therefore contains 24 attempts with raw per-run records.
 
-| Fixed 120-instance subset | Baseline loop | ForgeMCP loop | Change |
+| Formal-8 aggregate | Baseline | Hybrid | Hybrid change |
 | --- | ---: | ---: | ---: |
-| SWE-bench Verified solve rate | 45% (54/120) | 71% rounded (85/120) | +26 pp |
-| Repeated file-read ratio | 38% | 9% | −29 pp |
-| Cost per solved task | 1.00× | 0.66× | −34% |
+| Strict solve rate | 17/24 (70.8%) | 17/24 (70.8%) | +0.0 pp |
+| Average tool calls | 9.42 | 7.79 | −17.3% |
+| Average input tokens | 22,258 | 16,521 | −25.8% |
+| Repeated-read ratio | 30.2% | 25.6% | −4.6 pp |
+| Estimated cost per solve | $0.0649 | $0.0506 | −22.0% |
 
-The model, tool surface, and call budget were held constant between arms. The
-machine-readable reconstructed summary is in
-[`benchmarks/reconstructed-swebench-verified-120.summary.json`](benchmarks/reconstructed-swebench-verified-120.summary.json).
-Use the included harness to produce fresh raw records for any model and manifest.
+All 48 patches passed their hidden graders and no run changed a protected test. The
+strict score is lower because seven runs per arm exhausted the 12-call budget before a
+`succeeded` terminal state. See the
+[formal report](benchmarks/formal/results/summary.md), its six raw reports, and the
+[protocol](docs/evaluation.md) for hashes and limitations.
+
+The original local Git object database and 120-instance raw records were lost. The
+historical headline summary remains in
+[`benchmarks/reconstructed-swebench-verified-120.summary.json`](benchmarks/reconstructed-swebench-verified-120.summary.json)
+as provenance only; it is not presented as a reproduced result.
 
 ## See it work in under a minute
 
@@ -221,6 +228,12 @@ Pass explicit per-million-token prices if cost estimates are needed; ForgeMCP do
 hard-code volatile model pricing. Reports include solve rate, tool/model calls, token
 usage, estimated cost per solve, repeated-read ratio, grader status, and changed files.
 See [evaluation protocol](docs/evaluation.md).
+
+For a low-cost live integration check, use the
+[four-case pilot](benchmarks/live-small/README.md). For the current auditable result,
+use the [formal eight-case suite](benchmarks/formal/README.md), which checks in its
+manifest, external graders, three paired trials, raw records, and input/report hashes.
+Neither synthetic suite is presented as SWE-bench.
 
 ## Development
 

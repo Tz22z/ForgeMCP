@@ -1,0 +1,208 @@
+{
+  "strategy": "hybrid",
+  "model": "gpt-5.2-2025-12-11",
+  "pricing": {
+    "input_per_million": 1.75,
+    "output_per_million": 14.0
+  },
+  "manifest_sha256": "4c74e04fa3a659d835302e137e918135aec90776daa9e99701b827eb06d4422d",
+  "environment": {
+    "forgemcp": "0.1.0",
+    "python": "3.13.15",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O"
+  },
+  "attempted": 8,
+  "solved": 6,
+  "solve_rate": 0.75,
+  "total_tool_calls": 53,
+  "average_tool_calls": 6.625,
+  "total_model_calls": 59,
+  "total_input_tokens": 109641,
+  "total_output_tokens": 4144,
+  "estimated_total_cost_usd": 0.249887,
+  "cost_per_solved_usd": 0.041648,
+  "average_repeated_read_ratio": 0.2557,
+  "generated_at": "2026-09-15T21:15:29.583014Z",
+  "records": [
+    {
+      "instance_id": "formal_8__expired-cache-entry",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented correct expiry-boundary behavior in `ExpiringCache.get`:\n\n- Treats `expires_at <= now` as expired (returns `None`)\n- Removes expired entries from `_entries` when accessed\n- Keeps behavior for missing entries (`None`) and fresh entries (returns value)\n\nTests were not changed. Current test run: `2 passed`.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 4,
+        "model_calls": 5,
+        "input_tokens": 7545,
+        "output_tokens": 385,
+        "wall_seconds": 10.723
+      },
+      "estimated_cost_usd": 0.018594,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "cache.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__project-permission-invalidation",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated fault: `ProjectService.delete_project` only removed the project from `ProjectCache` and did not clear any derived permission entries, leaving `PermissionCache` entries for that project alive.\n\nFix implemented (no public API changes, no test changes):\n- Updated `service.py` so `delete_project()` now:\n  1) deletes the project from `ProjectCache`\n  2) calls `PermissionCache.invalidate_project(project_id)` to remove all cached permission entries for that project while preserving entries for other projects.\n\nVerification:\n- Ran the full test suite: **1 passed**.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 4,
+        "model_calls": 5,
+        "input_tokens": 8343,
+        "output_tokens": 337,
+        "wall_seconds": 8.627
+      },
+      "estimated_cost_usd": 0.019318,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "service.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__retry-budget-boundary",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Validated the fault: `should_retry` was allowing an extra retry because it returned `attempt_number <= max_attempts`, which incorrectly treats the final allowed attempt as still retryable.\n\n### Fix\nUpdated `retry_budget.py` so `should_retry` returns `True` only when *another* attempt remains:\n\n- Keeps existing `ValueError` behavior for `attempt_number < 1` and `max_attempts < 1`\n- Changes retry condition to `attempt_number < max_attempts`\n\n```python\nreturn attempt_number < max_attempts\n```\n\n### Test results\nRan the full test suite (no test changes):\n\n- `2 passed`",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 4,
+        "model_calls": 5,
+        "input_tokens": 6816,
+        "output_tokens": 348,
+        "wall_seconds": 8.261
+      },
+      "estimated_cost_usd": 0.0168,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "retry_budget.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__shipping-threshold",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Fixed the free-shipping eligibility check in `checkout.quote`.\n\n### What changed\n- **Before:** shipping was free only if the **discounted** subtotal was `>= 50.00`, which caused Pro discounts to incorrectly remove free shipping.\n- **Now:** shipping is free if the **pre-discount subtotal** is `>= 50.00`, while the discount is still applied to the merchandise total before shipping is added.\n\n### Patch (key line)\n`checkout.py`\n- `shipping = 0` now uses `subtotal >= FREE_SHIPPING_MINIMUM` (not `discounted >= ...`)\n\n### Verification\n- All existing tests pass unchanged: `2 passed`\n\nThis satisfies the acceptance criteria (e.g., a $50 Pro cart: 10% discount → $45 total, and shipping remains $0 because eligibility uses the gross subtotal).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 6,
+        "model_calls": 7,
+        "input_tokens": 12905,
+        "output_tokens": 599,
+        "wall_seconds": 13.702
+      },
+      "estimated_cost_usd": 0.03097,
+      "repeated_read_ratio": 0.0,
+      "changed_files": [
+        "checkout.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__cursor-boundary",
+      "strategy": "hybrid",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 23194,
+        "output_tokens": 433,
+        "wall_seconds": 19.196
+      },
+      "estimated_cost_usd": 0.046651,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "pager.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__idempotent-charge",
+      "strategy": "hybrid",
+      "status": "budget_exhausted",
+      "agent_summary": "model_calls budget exhausted (12/12)",
+      "solved": false,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 12,
+        "model_calls": 12,
+        "input_tokens": 29134,
+        "output_tokens": 1081,
+        "wall_seconds": 29.727
+      },
+      "estimated_cost_usd": 0.066118,
+      "repeated_read_ratio": 0.5455,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "payment.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__config-precedence",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "The bug was in `resolve_timeout`’s precedence order: it checked `config_file` before `environment`, allowing the config to override the environment.\n\n### Fix\nUpdated `config.py` so timeout resolution precedence is now:\n\n1. `explicit`\n2. `environment`\n3. `config_file`\n4. `default`\n\nPreserved existing validation (`_positive`) and return type.\n\n```py\nif explicit is not None:\n    return _positive(explicit, \"explicit\")\nif environment is not None:\n    return _positive(int(environment), \"environment\")\nif config_file is not None:\n    return _positive(config_file, \"config\")\nreturn _positive(default, \"default\")\n```\n\n### Verification\n- Ran `tests/test_config.py` and full `tests` suite: all passing.",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": "..                                                                       [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 5,
+        "model_calls": 6,
+        "input_tokens": 9802,
+        "output_tokens": 498,
+        "wall_seconds": 12.633
+      },
+      "estimated_cost_usd": 0.024125,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "config.py"
+      ]
+    },
+    {
+      "instance_id": "formal_8__nested-snapshot",
+      "strategy": "hybrid",
+      "status": "succeeded",
+      "agent_summary": "Implemented independent snapshotting for nested mutable state in `SnapshotHistory.save`.\n\n### What changed\n- `save()` now stores a **deep copy** of `self.state` instead of a shallow `dict.copy()`, preventing aliasing of nested dicts/lists and other mutable objects.\n- Added `from copy import deepcopy` and used `deepcopy(self.state)` when saving.\n\n### Result\n- Scalar fields restore correctly.\n- Nested dictionaries and lists restore to their saved values even after later in-place mutations.\n\n### Tests\n- `pytest` run: **all tests passed** (`2 passed`).",
+      "solved": true,
+      "grader_exit_code": 0,
+      "grader_summary": ".                                                                        [100%]",
+      "protected_files_unchanged": true,
+      "usage": {
+        "tool_calls": 6,
+        "model_calls": 7,
+        "input_tokens": 11902,
+        "output_tokens": 463,
+        "wall_seconds": 13.839
+      },
+      "estimated_cost_usd": 0.027311,
+      "repeated_read_ratio": 0.5,
+      "changed_files": [
+        ".forgemcp/index.sqlite3",
+        "history.py"
+      ]
+    }
+  ]
+}
